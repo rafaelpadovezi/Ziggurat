@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCore.CAP.Contrib.Idempotency", "src\DotNetCore.CAP.Contrib.Idempotency.csproj", "{3A7B93AD-AE0A-4877-8792-90C47D330A80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCore.CAP.Contrib.Idempotency", "src\DotNetCore.CAP.Contrib.Idempotency\DotNetCore.CAP.Contrib.Idempotency.csproj", "{3A7B93AD-AE0A-4877-8792-90C47D330A80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCore.CAP.Contrib.Idempotency.Tests", "tests\DotNetCore.CAP.Contrib.Idempotency.Tests.csproj", "{7BA9314F-4563-4927-BF31-68D5465F9530}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCore.CAP.Contrib.Idempotency.Tests", "tests\DotNetCore.CAP.Contrib.Idempotency.Tests\DotNetCore.CAP.Contrib.Idempotency.Tests.csproj", "{7BA9314F-4563-4927-BF31-68D5465F9530}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

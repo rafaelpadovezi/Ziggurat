@@ -1,3 +1,4 @@
+using DotNetCore.CAP.Contrib.Idempotency.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,11 +14,13 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             where TMessage : IMessage
         {
             return services
+                .AddScoped<IStorageHelper, StorageHelperSqlServer>()
                 .AddScoped<TService>()
                 .AddScoped<IConsumerService<TMessage>>(t =>
                     new IdempotencyService<TMessage, TContext>(
                         t.GetRequiredService<TContext>(),
                         t.GetRequiredService<TService>(),
+                        t.GetRequiredService<IStorageHelper>(),
                         t.GetRequiredService<ILogger<IdempotencyService<TMessage, TContext>>>())
                 );
         }

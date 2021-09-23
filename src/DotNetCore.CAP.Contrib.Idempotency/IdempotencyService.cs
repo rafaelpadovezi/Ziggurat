@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+using DotNetCore.CAP.Contrib.Idempotency.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq;
@@ -12,15 +12,18 @@ namespace DotNetCore.CAP.Contrib.Idempotency
     {
         private readonly DbSet<MessageTracking> _messages;
         private readonly IConsumerService<TMessage> _service;
+        private readonly IStorageHelper _storageHelper;
         private readonly ILogger<IdempotencyService<TMessage, TContext>> _logger;
 
         public IdempotencyService(
             TContext context,
             IConsumerService<TMessage> service,
+            IStorageHelper storageHelper,
             ILogger<IdempotencyService<TMessage, TContext>> logger)
         {
             _messages = context.Set<MessageTracking>();
             _service = service;
+            _storageHelper = storageHelper;
             _logger = logger;
         }
         
@@ -28,44 +31,36 @@ namespace DotNetCore.CAP.Contrib.Idempotency
         {
             if (await TrackMessageAsync(message))
             {
-                _logger.LogInformation("Message was processed already. Ignoring {MessageId}.", message.MessageId);
+                LogMessageExists(message);
                 return;
             }
 
             try
             {
-                await _service.ProcessMessageAsync(message);                
+                await _service.ProcessMessageAsync(message);
             }
-            catch (DbUpdateException ex) when (IsMessageExistsError(ex))
+            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
             {
                 // If is unique constraint error it means that the message
                 // was already processed and should do nothing
-                _logger.LogInformation("Message was processed already. Ignoring {MessageId}.", message.MessageId);
+                LogMessageExists(message);
             }
         }
 
-        private static bool IsMessageExistsError(DbUpdateException ex)
-        {
-            if (ex.InnerException is not SqlException sqlEx)
-                return false;
-
-            var entry = ex.Entries.FirstOrDefault(
-                x => x.Entity.GetType() == typeof(MessageTracking));
-            // SqlServer: Error 2627
-            // Violation of PRIMARY KEY constraint Constraint Name.
-            // Cannot insert duplicate key in object Table Name.
-            return sqlEx.Number == 2627 && entry is not null;
-        }
+        private void LogMessageExists(TMessage message) =>
+            _logger.LogInformation(
+                "Message was processed already. Ignoring {MessageId}:{Type}.", message.MessageId, message.MessageGroup);
 
         private async Task<bool> TrackMessageAsync(TMessage message)
         {
-            // The performance of this must be taken in account.
-            // Although the query is fast executing for each message
-            // could affect the DB CPU consume.
-            if (await _messages.AnyAsync(x => x.Id == message.MessageId))
+            var messageExists = await _messages
+                .Where(x => x.Id == message.MessageId)
+                .Where(x => x.Type == message.MessageGroup)
+                .AnyAsync();
+            if (messageExists)
                 return true;
 
-            _messages.Add(new MessageTracking { Id = message.MessageId, Type = message.MessageGroup});
+            _messages.Add(new MessageTracking(message.MessageId, message.MessageGroup));
             return false;
         }
     }
