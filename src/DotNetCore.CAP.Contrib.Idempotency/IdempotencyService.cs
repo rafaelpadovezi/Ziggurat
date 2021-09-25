@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using System.Collections.Generic;
+using CSharpFunctionalExtensions;
 
 namespace DotNetCore.CAP.Contrib.Idempotency
 {
@@ -17,6 +18,8 @@ namespace DotNetCore.CAP.Contrib.Idempotency
         private readonly IStorageHelper _storageHelper;
         private readonly ILogger<IdempotencyService<TMessage, TContext>> _logger;
         private readonly IValidator<TMessage> _validator;
+        private const string DuplicatedErrorMessage = "Message was processed already.";
+
 
         public IdempotencyService(
             TContext context,
@@ -32,48 +35,27 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             _validator = validator;
         }
 
-        public async Task ProcessMessageAsync(TMessage message)
+        public async Task ProcessMessageAsync(TMessage message) =>
+            await TrackMessageAsync(message)
+                .Check(ValidateMessage)
+                .Check(CallConsumerService)
+                .OnFailure(error => _logger.LogInformation(error + "Ignoring {MessageId}:{Type}.", message.MessageId, message.MessageGroup));
+
+        private async Task<Result<TMessage>> TrackMessageAsync(TMessage message)
         {
-            var messageExists = await TrackMessageAsync(message);
-            var messageIsValid = ValidateMessage(message);
-            
-            if (messageExists || messageIsValid is false)
-                return;
-
-            try
-            {
-                await _service.ProcessMessageAsync(message);
-            }
-            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
-            {
-                // If is unique constraint error it means that the message
-                // was already processed and should do nothing
-                LogMessageExists(message);
-            }
-        }
-
-        private void LogMessageExists(TMessage message) =>
-            _logger.LogInformation(
-                "Message was processed already. Ignoring {MessageId}:{Type}.", message.MessageId, message.MessageGroup);
-
-        private async Task<bool> TrackMessageAsync(TMessage message)
-        {
-            var messageExists = await _messages
+            var existsAnyMessage = await _messages
                 .Where(x => x.Id == message.MessageId)
                 .Where(x => x.Type == message.MessageGroup)
                 .AnyAsync();
 
-            if (messageExists)
-            {
-                LogMessageExists(message);
-                return true;
-            }
+            if (existsAnyMessage)
+                return Result.Failure<TMessage>(DuplicatedErrorMessage);
 
             _messages.Add(new MessageTracking(message.MessageId, message.MessageGroup));
-            return false;
+            return Result.Success(message);
         }
 
-        private bool ValidateMessage(TMessage message)
+        private Result<TMessage> ValidateMessage(TMessage message)
         {
             var result = _validator.Validate(message);
 
@@ -81,10 +63,25 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             {
                 var errorsMessageFromResult = result.Errors.Select(error => error.ErrorMessage);
                 var errors = string.Join("\n", errorsMessageFromResult);
-                _logger.LogError(errors);
+                return Result.Failure<TMessage>($"The message not is valid, {errors}");
             }
 
-            return result.IsValid;
+            return Result.Success(message);
+        }
+
+        private async Task<Result> CallConsumerService(TMessage message)
+        {
+            try
+            {
+                await _service.ProcessMessageAsync(message);
+                return Result.Success();
+            }
+            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
+            {
+                // If is unique constraint error it means that the message
+                // was already processed and should do nothing
+                return Result.Failure<TMessage>(DuplicatedErrorMessage);
+            }
         }
     }
 }
