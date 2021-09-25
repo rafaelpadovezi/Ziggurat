@@ -1,6 +1,7 @@
 using DotNetCore.CAP.Contrib.Idempotency.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,23 +16,25 @@ namespace DotNetCore.CAP.Contrib.Idempotency
         private readonly IStorageHelper _storageHelper;
         private readonly ILogger<IdempotencyService<TMessage, TContext>> _logger;
 
-        public IdempotencyService(
+        internal IdempotencyService(
             TContext context,
             IConsumerService<TMessage> service,
             IStorageHelper storageHelper,
             ILogger<IdempotencyService<TMessage, TContext>> logger)
         {
+            CheckIfDbSetExists(context);
+
             _messages = context.Set<MessageTracking>();
             _service = service;
             _storageHelper = storageHelper;
             _logger = logger;
         }
-        
+
         public async Task ProcessMessageAsync(TMessage message)
         {
             if (await TrackMessageAsync(message))
             {
-                LogMessageExists(message);
+                _logger.LogMessageExists(message);
                 return;
             }
 
@@ -43,13 +46,9 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             {
                 // If is unique constraint error it means that the message
                 // was already processed and should do nothing
-                LogMessageExists(message);
+                _logger.LogMessageExists(message);
             }
         }
-
-        private void LogMessageExists(TMessage message) =>
-            _logger.LogInformation(
-                "Message was processed already. Ignoring {MessageId}:{Type}.", message.MessageId, message.MessageGroup);
 
         private async Task<bool> TrackMessageAsync(TMessage message)
         {
@@ -62,6 +61,14 @@ namespace DotNetCore.CAP.Contrib.Idempotency
 
             _messages.Add(new MessageTracking(message.MessageId, message.MessageGroup));
             return false;
+        }
+
+        private static void CheckIfDbSetExists(TContext context)
+        {
+            var metaData = context.Model.FindEntityType(typeof(MessageTracking));
+            if (metaData == null)
+                throw new InvalidOperationException(
+                    "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
         }
     }
 }

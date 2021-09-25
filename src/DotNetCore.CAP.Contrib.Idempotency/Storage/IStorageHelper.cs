@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DotNetCore.CAP.Contrib.Idempotency.Storage
 {
-    public interface IStorageHelper
+    internal interface IStorageHelper
     {
         bool IsMessageExistsError(DbUpdateException ex);
     }

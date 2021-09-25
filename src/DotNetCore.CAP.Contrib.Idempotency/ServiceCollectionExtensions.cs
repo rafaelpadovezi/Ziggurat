@@ -14,7 +14,7 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             where TMessage : IMessage
         {
             return services
-                .AddScoped<IStorageHelper, StorageHelperSqlServer>()
+                .AddSingleton<IStorageHelper, StorageHelperSqlServer>()
                 .AddScoped<TService>()
                 .AddScoped<IConsumerService<TMessage>>(t =>
                     new IdempotencyService<TMessage, TContext>(

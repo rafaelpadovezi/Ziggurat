@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DotNetCore.CAP.Contrib.Idempotency.Storage
 {
-    public class StorageHelperSqlServer : IStorageHelper
+    internal class StorageHelperSqlServer : IStorageHelper
     {
         public bool IsMessageExistsError(DbUpdateException ex)
         {
