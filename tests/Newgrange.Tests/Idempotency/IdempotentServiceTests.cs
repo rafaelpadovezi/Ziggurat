@@ -1,13 +1,14 @@
-﻿using DotNetCore.CAP.Contrib.Idempotency.Storage;
-using DotNetCore.CAP.Contrib.Idempotency.Tests.Support;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newgrange.Idempotency;
+using Newgrange.Internal.Storage;
+using Newgrange.Tests.Support;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DotNetCore.CAP.Contrib.Idempotency.Tests
+namespace Newgrange.Tests.Idempotency
 {
     public class IdempotentServiceTests : TestFixture
     {
@@ -16,18 +17,11 @@ namespace DotNetCore.CAP.Contrib.Idempotency.Tests
         {
             // Arrange
             var mockService = new Mock<IConsumerService<TestMessage>>();
-            var mockLogger = new Mock<ILogger<IdempotencyService<TestMessage, TestDbContext>>>();
-            var mockStorageHelper = new Mock<IStorageHelper>();
-
-            var service = new IdempotencyService<TestMessage, TestDbContext>(
-                Context,
-                mockService.Object,
-                mockStorageHelper.Object,
-                mockLogger.Object);
+            var service = CreateIdempotencyMiddleware();
             var message = new TestMessage("message1", "group1");
 
             // Act
-            await service.ProcessMessageAsync(message);
+            await service.OnExecutingAsync(message, testMessage => mockService.Object.ProcessMessageAsync(testMessage));
 
             // Assert
             mockService.Verify(x => x.ProcessMessageAsync(message), Times.Once);
@@ -38,20 +32,14 @@ namespace DotNetCore.CAP.Contrib.Idempotency.Tests
         {
             // Arrange
             var mockService = new Mock<IConsumerService<TestMessage>>();
-            var mockLogger = new Mock<ILogger<IdempotencyService<TestMessage, TestDbContext>>>();
-            var mockStorageHelper = new Mock<IStorageHelper>();
             Context.Messages.Add(new MessageTracking("message1", "group1"));
             await Context.SaveChangesAsync();
 
-            var service = new IdempotencyService<TestMessage, TestDbContext>(
-                Context,
-                mockService.Object,
-                mockStorageHelper.Object,
-                mockLogger.Object);
+            var service = CreateIdempotencyMiddleware();
             var message = new TestMessage("message1", "group2");
 
             // Act
-            await service.ProcessMessageAsync(message);
+            await service.OnExecutingAsync(message, testMessage => mockService.Object.ProcessMessageAsync(testMessage));
 
             // Assert
             mockService.Verify(x => x.ProcessMessageAsync(message), Times.Once);
@@ -65,18 +53,12 @@ namespace DotNetCore.CAP.Contrib.Idempotency.Tests
             mockService
                 .Setup(x => x.ProcessMessageAsync(It.IsAny<TestMessage>()))
                 .Callback(() => Context.SaveChanges());
-            var mockLogger = new Mock<ILogger<IdempotencyService<TestMessage, TestDbContext>>>();
-            var mockStorageHelper = new Mock<IStorageHelper>();
 
-            var service = new IdempotencyService<TestMessage, TestDbContext>(
-                Context,
-                mockService.Object,
-                mockStorageHelper.Object,
-                mockLogger.Object);
+            var service = CreateIdempotencyMiddleware();
             var message = new TestMessage("message1", "group1");
 
             // Act
-            await service.ProcessMessageAsync(message);
+            await service.OnExecutingAsync(message, testMessage => mockService.Object.ProcessMessageAsync(testMessage));
 
             // Assert
             var storedMessage = await Context.Messages.AsNoTracking().SingleOrDefaultAsync();
@@ -89,25 +71,33 @@ namespace DotNetCore.CAP.Contrib.Idempotency.Tests
         {
             // Arrange
             var mockService = new Mock<IConsumerService<TestMessage>>();
-            var mockLogger = new Mock<ILogger<IdempotencyService<TestMessage, TestDbContext>>>();
-            var mockStorageHelper = new Mock<IStorageHelper>();
+            var mockLogger = new Mock<ILogger<IdempotencyMiddleware<TestMessage, TestDbContext>>>();
             Context.Messages.Add(new MessageTracking("message1", "group1"));
             await Context.SaveChangesAsync();
 
-            var service = new IdempotencyService<TestMessage, TestDbContext>(
-                Context,
-                mockService.Object,
-                mockStorageHelper.Object,
-                mockLogger.Object);
+            var service = CreateIdempotencyMiddleware(mockLogger);
             var message = new TestMessage("message1", "group1");
 
             // Act
-            await service.ProcessMessageAsync(message);
+            await service.OnExecutingAsync(message, testMessage => mockService.Object.ProcessMessageAsync(testMessage));
 
             // Assert
             mockService.Verify(x => x.ProcessMessageAsync(message), Times.Never);
             mockLogger.VerifyLog(logger =>
                 logger.LogInformation($"Message was processed already. Ignoring message1:group1."));
+        }
+
+        private IdempotencyMiddleware<TestMessage, TestDbContext> CreateIdempotencyMiddleware(
+            Mock<ILogger<IdempotencyMiddleware<TestMessage, TestDbContext>>> mockLogger = null)
+        {
+            mockLogger ??= new Mock<ILogger<IdempotencyMiddleware<TestMessage, TestDbContext>>>();
+            var mockStorageHelper = new Mock<IStorageHelper>();
+
+            var service = new IdempotencyMiddleware<TestMessage, TestDbContext>(
+                Context,
+                mockStorageHelper.Object,
+                mockLogger.Object);
+            return service;
         }
 
         public record TestMessage : IMessage

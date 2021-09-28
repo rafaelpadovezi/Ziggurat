@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\DotNetCore.CAP.Contrib.Idempotency\DotNetCore.CAP.Contrib.Idempotency.csproj" />
+      <ProjectReference Include="..\..\src\Newgrange\Newgrange.csproj" />
     </ItemGroup>
 
 </Project>

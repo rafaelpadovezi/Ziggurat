@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange
 {
     public interface IConsumerService<TMessage> where TMessage : IMessage
     {

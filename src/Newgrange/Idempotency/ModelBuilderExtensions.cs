@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange.Idempotency
 {
     public static class ModelBuilderExtensions
     {

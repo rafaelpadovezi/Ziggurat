@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange.Internal
 {
     internal static class LoggerExtensions
     {

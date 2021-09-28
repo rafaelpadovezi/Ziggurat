@@ -1,10 +1,11 @@
-﻿using DotNetCore.CAP.Contrib.Idempotency.Storage;
-using DotNetCore.CAP.Contrib.Idempotency.Tests.Support;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Newgrange.Idempotency;
+using Newgrange.Internal.Storage;
+using Newgrange.Tests.Support;
 using Xunit;
 
-namespace DotNetCore.CAP.Contrib.Idempotency.Tests.Storage
+namespace Newgrange.Tests.Internal.Storage
 {
     public class StorageHelperSqlServerTests : TestFixture
     {

@@ -1,53 +1,31 @@
-using DotNetCore.CAP.Contrib.Idempotency.Storage;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newgrange.Internal;
+using Newgrange.Internal.Storage;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange.Idempotency
 {
-    public class IdempotencyService<TMessage, TContext> : IConsumerService<TMessage>
+    public class IdempotencyMiddleware<TMessage, TContext> : IConsumerMiddleware<TMessage>
         where TContext : DbContext
         where TMessage : IMessage
     {
         private readonly DbSet<MessageTracking> _messages;
-        private readonly IConsumerService<TMessage> _service;
         private readonly IStorageHelper _storageHelper;
-        private readonly ILogger<IdempotencyService<TMessage, TContext>> _logger;
+        private readonly ILogger<IdempotencyMiddleware<TMessage, TContext>> _logger;
 
-        internal IdempotencyService(
+        internal IdempotencyMiddleware(
             TContext context,
-            IConsumerService<TMessage> service,
             IStorageHelper storageHelper,
-            ILogger<IdempotencyService<TMessage, TContext>> logger)
+            ILogger<IdempotencyMiddleware<TMessage, TContext>> logger)
         {
             CheckIfDbSetExists(context);
 
             _messages = context.Set<MessageTracking>();
-            _service = service;
             _storageHelper = storageHelper;
             _logger = logger;
-        }
-
-        public async Task ProcessMessageAsync(TMessage message)
-        {
-            if (await TrackMessageAsync(message))
-            {
-                _logger.LogMessageExists(message);
-                return;
-            }
-
-            try
-            {
-                await _service.ProcessMessageAsync(message);
-            }
-            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
-            {
-                // If is unique constraint error it means that the message
-                // was already processed and should do nothing
-                _logger.LogMessageExists(message);
-            }
         }
 
         private async Task<bool> TrackMessageAsync(TMessage message)
@@ -69,6 +47,26 @@ namespace DotNetCore.CAP.Contrib.Idempotency
             if (metaData == null)
                 throw new InvalidOperationException(
                     "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
+        }
+
+        public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
+        {
+            if (await TrackMessageAsync(message))
+            {
+                _logger.LogMessageExists(message);
+                return;
+            }
+
+            try
+            {
+                await next(message);
+            }
+            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
+            {
+                // If is unique constraint error it means that the message
+                // was already processed and should do nothing
+                _logger.LogMessageExists(message);
+            }
         }
     }
 }

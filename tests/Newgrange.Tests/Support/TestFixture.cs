@@ -1,9 +1,9 @@
-﻿using DotNetCore.CAP.Contrib.Idempotency.Storage;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Newgrange.Idempotency;
 using System;
 using System.Diagnostics;
 
-namespace DotNetCore.CAP.Contrib.Idempotency.Tests.Support
+namespace Newgrange.Tests.Support
 {
     public class TestFixture : IDisposable
     {

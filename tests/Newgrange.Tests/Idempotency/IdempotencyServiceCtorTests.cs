@@ -1,12 +1,13 @@
-﻿using DotNetCore.CAP.Contrib.Idempotency.Storage;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newgrange.Idempotency;
+using Newgrange.Internal.Storage;
 using System;
 using Xunit;
 
-namespace DotNetCore.CAP.Contrib.Idempotency.Tests
+namespace Newgrange.Tests.Idempotency
 {
     public class IdempotencyServiceCtorTests
     {
@@ -14,15 +15,13 @@ namespace DotNetCore.CAP.Contrib.Idempotency.Tests
         public void IdempotencyService_ContextWithoutMessageDbSet_ThrowException()
         {
             // Arrange
-            var mockService = new Mock<IConsumerService<TestMessage>>();
-            var mockLogger = new Mock<ILogger<IdempotencyService<TestMessage, TestContextWithoutMessages>>>();
+            var mockLogger = new Mock<ILogger<IdempotencyMiddleware<TestMessage, TestContextWithoutMessages>>>();
             var mockStorageHelper = new Mock<IStorageHelper>();
             var context = new TestContextWithoutMessages();
 
             // Act
-            Action act = () => new IdempotencyService<TestMessage, TestContextWithoutMessages>(
+            Action act = () => new IdempotencyMiddleware<TestMessage, TestContextWithoutMessages>(
                 context,
-                mockService.Object,
                 mockStorageHelper.Object,
                 mockLogger.Object);
 

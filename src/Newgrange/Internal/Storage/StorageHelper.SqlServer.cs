@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newgrange.Idempotency;
 using System.Linq;
 
-namespace DotNetCore.CAP.Contrib.Idempotency.Storage
+namespace Newgrange.Internal.Storage
 {
     internal class StorageHelperSqlServer : IStorageHelper
     {

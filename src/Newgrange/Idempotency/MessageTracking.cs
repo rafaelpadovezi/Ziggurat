@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange.Idempotency
 {
     public class MessageTracking
     {

@@ -1,9 +1,9 @@
-using DotNetCore.CAP.Filter;
+﻿using DotNetCore.CAP.Filter;
 using DotNetCore.CAP.Messages;
 using System;
 using System.Linq;
 
-namespace DotNetCore.CAP.Contrib.Idempotency
+namespace Newgrange.CapAdapter
 {
     public class BootstrapFilter : SubscribeFilter
     {

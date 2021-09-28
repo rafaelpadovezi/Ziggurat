@@ -1,4 +1,4 @@
-namespace DotNetCore.CAP.Contrib.Idempotency
+﻿namespace Newgrange
 {
     public interface IMessage
     {
