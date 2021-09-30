@@ -16,7 +16,7 @@ namespace Newgrange.Idempotency
         private readonly IStorageHelper _storageHelper;
         private readonly ILogger<IdempotencyMiddleware<TMessage, TContext>> _logger;
 
-        internal IdempotencyMiddleware(
+        public IdempotencyMiddleware(
             TContext context,
             IStorageHelper storageHelper,
             ILogger<IdempotencyMiddleware<TMessage, TContext>> logger)
@@ -26,6 +26,26 @@ namespace Newgrange.Idempotency
             _messages = context.Set<MessageTracking>();
             _storageHelper = storageHelper;
             _logger = logger;
+        }
+
+        public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
+        {
+            if (await TrackMessageAsync(message))
+            {
+                _logger.LogMessageExists(message);
+                return;
+            }
+
+            try
+            {
+                await next(message);
+            }
+            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
+            {
+                // If is unique constraint error it means that the message
+                // was already processed and should do nothing
+                _logger.LogMessageExists(message);
+            }
         }
 
         private async Task<bool> TrackMessageAsync(TMessage message)
@@ -47,26 +67,6 @@ namespace Newgrange.Idempotency
             if (metaData == null)
                 throw new InvalidOperationException(
                     "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
-        }
-
-        public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
-        {
-            if (await TrackMessageAsync(message))
-            {
-                _logger.LogMessageExists(message);
-                return;
-            }
-
-            try
-            {
-                await next(message);
-            }
-            catch (DbUpdateException ex) when (_storageHelper.IsMessageExistsError(ex))
-            {
-                // If is unique constraint error it means that the message
-                // was already processed and should do nothing
-                _logger.LogMessageExists(message);
-            }
         }
     }
 }

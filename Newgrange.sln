@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newgrange.Tests", "tests\Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newgrange.CapAdapter", "src\Newgrange.CapAdapter\Newgrange.CapAdapter.csproj", "{24D784FD-5FD1-4D57-A858-03CDDE3B0C93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Cap.Api", "samples\Example.Cap.Api\Example.Cap.Api.csproj", "{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{24D784FD-5FD1-4D57-A858-03CDDE3B0C93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24D784FD-5FD1-4D57-A858-03CDDE3B0C93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24D784FD-5FD1-4D57-A858-03CDDE3B0C93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

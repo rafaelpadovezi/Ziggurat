@@ -8,3 +8,10 @@ services:
       ACCEPT_EULA: "Y"
     ports:
       - "5100:1433"
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
