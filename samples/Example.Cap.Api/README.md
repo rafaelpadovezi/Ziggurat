@@ -11,5 +11,5 @@ docker compose up -d sqlserver rabbit
 Run migrations
 
 ```shell
-dotnet ef database update --project .\samples\Example.Cap.Api\ --context ExampleDbContext
+dotnet ef database update --project samples/Example.Cap.Api/ --context ExampleDbContext
 ```

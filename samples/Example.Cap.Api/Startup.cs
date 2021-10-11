@@ -2,6 +2,7 @@ using Example.Cap.Api.Consumers;
 using Example.Cap.Api.Domain.Services;
 using Example.Cap.Api.Dtos;
 using Example.Cap.Api.Infrastructure;
+using Example.Cap.Api.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newgrange;
 using Newgrange.CapAdapter;
-using Newgrange.Idempotency;
 
 namespace Example.Cap.Api
 {
@@ -45,8 +45,12 @@ namespace Example.Cap.Api
 
             services
                 .AddScoped<OrderCreatedConsumer>()
-                .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>()
-                .AddIdempotencyMiddleware<OrderCreatedMessage, ExampleDbContext>();
+                .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
+                    options =>
+                    {
+                        options.Use<LoggingMiddleware<OrderCreatedMessage>>();
+                        options.UseIdempotency<ExampleDbContext>();
+                    });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)

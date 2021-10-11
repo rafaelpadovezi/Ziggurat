@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Newgrange.Idempotency;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Newgrange.Internal.Storage;
 
 namespace Newgrange
@@ -8,11 +7,12 @@ namespace Newgrange
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddConsumerService<TMessage, TService>(
-            this IServiceCollection services)
+            this IServiceCollection services,
+            Action<MiddlewareOptions<TMessage>> setupAction)
             where TService : class, IConsumerService<TMessage>
             where TMessage : IMessage
         {
-            return services
+            services
                 .AddSingleton<IStorageHelper, StorageHelperSqlServer>()
                 .AddScoped<TService>()
                 .AddScoped<IConsumerService<TMessage>>(t =>
@@ -20,6 +20,20 @@ namespace Newgrange
                         t,
                         t.GetRequiredService<TService>())
                 );
+
+            var options = new MiddlewareOptions<TMessage>();
+            setupAction(options);
+            foreach (var extension in options.Extensions)
+            {
+                extension(services);
+            }
+
+            return services;
         }
+    }
+
+    public interface IMiddlewareExtension
+    {
+        public void AddServices(IServiceCollection services);
     }
 }
