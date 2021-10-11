@@ -1,7 +1,7 @@
-﻿using DotNetCore.CAP;
+﻿using System.Threading.Tasks;
+using DotNetCore.CAP;
 using Example.Cap.Api.Dtos;
-using Newgrange;
-using System.Threading.Tasks;
+using Ziggurat;
 
 namespace Example.Cap.Api.Consumers
 {
@@ -9,8 +9,10 @@ namespace Example.Cap.Api.Consumers
     {
         private readonly IConsumerService<OrderCreatedMessage> _service;
 
-        public OrderCreatedConsumer(IConsumerService<OrderCreatedMessage> service) =>
+        public OrderCreatedConsumer(IConsumerService<OrderCreatedMessage> service)
+        {
             _service = service;
+        }
 
         [CapSubscribe("order.created", Group = "catalog.order.created")]
         public async Task UpdateProductStock(OrderCreatedMessage message)

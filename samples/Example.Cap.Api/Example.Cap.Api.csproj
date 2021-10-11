@@ -15,7 +15,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Newgrange.CapAdapter\Newgrange.CapAdapter.csproj" />
+      <ProjectReference Include="..\..\src\Ziggurat.CapAdapter\Ziggurat.CapAdapter.csproj" />
     </ItemGroup>
 
 </Project>

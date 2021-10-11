@@ -33,7 +33,7 @@ namespace Example.Cap.Api.Infrastructure.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Newgrange.Idempotency.MessageTracking", b =>
+            modelBuilder.Entity("Ziggurat.Idempotency.MessageTracking", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(255)

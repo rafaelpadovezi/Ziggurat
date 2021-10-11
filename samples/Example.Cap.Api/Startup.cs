@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newgrange;
-using Newgrange.CapAdapter;
+using Ziggurat;
+using Ziggurat.CapAdapter;
 
 namespace Example.Cap.Api
 {
