@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newgrange;
+using Ziggurat;
 
 namespace Example.Cap.Api.Infrastructure.Middlewares
 {

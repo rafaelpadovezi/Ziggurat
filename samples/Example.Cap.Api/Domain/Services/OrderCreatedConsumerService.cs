@@ -1,8 +1,8 @@
-﻿using Example.Cap.Api.Dtos;
+﻿using System.Threading.Tasks;
+using Example.Cap.Api.Dtos;
 using Example.Cap.Api.Infrastructure;
 using Microsoft.Extensions.Logging;
-using Newgrange;
-using System.Threading.Tasks;
+using Ziggurat;
 
 namespace Example.Cap.Api.Domain.Services
 {

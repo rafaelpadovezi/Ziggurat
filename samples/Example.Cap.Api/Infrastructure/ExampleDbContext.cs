@@ -1,6 +1,6 @@
 ﻿using Example.Cap.Api.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Newgrange.Idempotency;
+using Ziggurat.Idempotency;
 
 namespace Example.Cap.Api.Infrastructure
 {

@@ -1,4 +1,4 @@
-﻿using Newgrange;
+﻿using Ziggurat;
 
 namespace Example.Cap.Api.Dtos
 {
