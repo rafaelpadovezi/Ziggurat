@@ -5,7 +5,7 @@ A .NET library to create message consumers.
 Ziggurat implements functionalities to help solve common problems when dealing with messages:
 - [Idempotency](https://microservices.io/patterns/communication-style/idempotent-consumer.html)
 
-# How it works
+## How it works
 
 The library uses the uses the [decorator pattern](https://refactoring.guru/design-patterns/decorator/csharp/example) to execute a middleware pipeline when calling the consumer services. This way is possible to extend the service code adding new functionality.
 
