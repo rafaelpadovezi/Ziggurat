@@ -25,7 +25,8 @@ dotnet sonarscanner begin \
     /v:"$PROJECT_VERSION" \
     /d:sonar.host.url="https://sonarcloud.io" \
     /d:sonar.cs.opencover.reportsPaths="**/*/coverage.opencover.xml" \
-    /d:sonar.cs.vstest.reportsPaths="**/*/*.trx"
+    /d:sonar.cs.vstest.reportsPaths="**/*/*.trx" \
+    /d:sonar.exclusions="samples/**/*.cs"
 
 dotnet build
 ./scripts/start-tests.sh
