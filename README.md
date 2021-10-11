@@ -14,6 +14,8 @@ The library uses the uses the [decorator pattern](https://refactoring.guru/desig
 
 The Idempotency middleware wraps the service enforcing that the message in only being processed once by tracking the message processing on the database.
 
+Also, it's possible to add custom middlewares to the pipeline.
+
 ## Run tests
 
 ```shell
