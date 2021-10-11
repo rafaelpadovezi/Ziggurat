@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Xunit;
 using Ziggurat.Idempotency;
 
 namespace Ziggurat.Tests.Support
 {
+    [Collection("TextFixture Collection")]
     public class TestFixture : IDisposable
     {
         public TestFixture()
