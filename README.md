@@ -1,5 +1,8 @@
 # ![Ziggurat icon](./docs/icon.png) Ziggurat
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rafaelpadovezi_Ziggurat&metric=alert_status)](https://sonarcloud.io/dashboard?id=rafaelpadovezi_Ziggurat)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rafaelpadovezi_Ziggurat&metric=coverage)](https://sonarcloud.io/dashboard?id=rafaelpadovezi_Ziggurat)
+
 A .NET library to create message consumers.
 
 Ziggurat implements functionalities to help solve common problems when dealing with messages:
