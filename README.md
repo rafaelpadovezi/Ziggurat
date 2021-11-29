@@ -22,3 +22,6 @@ Also, it's possible to add custom middlewares to the pipeline.
 docker compose up -d sqlserver
 dotnet test
 ```
+
+
+TESTE
