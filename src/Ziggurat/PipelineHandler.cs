@@ -33,7 +33,7 @@ namespace Ziggurat
         }
     }
 
-    public delegate Task ConsumerServiceDelegate<TMessage>(TMessage message)
+    public delegate Task ConsumerServiceDelegate<in TMessage>(TMessage message)
         where TMessage : IMessage;
 
     public interface IConsumerMiddleware<TMessage> where TMessage : IMessage

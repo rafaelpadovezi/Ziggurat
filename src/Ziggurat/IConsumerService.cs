@@ -2,7 +2,7 @@
 
 namespace Ziggurat
 {
-    public interface IConsumerService<TMessage> where TMessage : IMessage
+    public interface IConsumerService<in TMessage> where TMessage : IMessage
     {
         Task ProcessMessageAsync(TMessage message);
     }
