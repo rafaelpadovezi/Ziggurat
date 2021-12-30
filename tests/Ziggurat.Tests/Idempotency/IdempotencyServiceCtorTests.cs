@@ -20,7 +20,7 @@ namespace Ziggurat.Tests.Idempotency
             var context = new TestContextWithoutMessages();
 
             // Act
-            Action act = () => new IdempotencyMiddleware<TestMessage, TestContextWithoutMessages>(
+            Action act = () => _ = new IdempotencyMiddleware<TestMessage, TestContextWithoutMessages>(
                 context,
                 mockStorageHelper.Object,
                 mockLogger.Object);
