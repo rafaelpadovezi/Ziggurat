@@ -100,16 +100,10 @@ namespace Ziggurat.Tests.Idempotency
             return service;
         }
 
-        public record TestMessage : IMessage
+        public record TestMessage(string MessageId, string MessageGroup) : IMessage
         {
-            public TestMessage(string messageId, string messageGroup)
-            {
-                MessageId = messageId;
-                MessageGroup = messageGroup;
-            }
-
-            public string MessageId { get; set; }
-            public string MessageGroup { get; set; }
+            public string MessageId { get; set; } = MessageId;
+            public string MessageGroup { get; set; } = MessageGroup;
         }
     }
 }

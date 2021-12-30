@@ -9,6 +9,8 @@ namespace Ziggurat.Tests.Support
     [Collection("TextFixture Collection")]
     public class TestFixture : IDisposable
     {
+        private bool _isDisposed;
+
         public TestFixture()
         {
             Context.Database.EnsureCreated();
@@ -17,10 +19,23 @@ namespace Ziggurat.Tests.Support
 
         protected TestDbContext Context { get; } = new();
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+
+            if (disposing)
+            {
+                Context.Database.RollbackTransaction();
+                Context?.Dispose();
+            }
+
+            _isDisposed = true;
+        }
+
         public void Dispose()
         {
-            Context.Database.RollbackTransaction();
-            Context?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 
