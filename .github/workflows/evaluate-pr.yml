@@ -1,7 +1,7 @@
-name: Build and publish
+name: Evaluate PR
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
@@ -15,16 +15,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # Shallow clones should be disabled for a better relevancy of analysis
-          fetch-depth: 0
       - name: Install dotnet-sonarscanner
         run: |
           dotnet tool install --global dotnet-sonarscanner
       - name: Build the project, run all tests and publish to SonarCloud
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker-compose up -d sqlserver
           ./scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
