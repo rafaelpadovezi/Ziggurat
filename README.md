@@ -62,15 +62,19 @@ public class MyMessageConsumerService : IConsumerService<MyMessage>
 
 The message type must implements the interface `IMessage`.
 
-It's also required that the consumers are setup on the dependency injection configuration:
+It's also required that the consumers are setup on the dependency injection configuration. Besides, it's necessary to add the CAP filter that enriches the message with the required information.
 
 
 ```c#
-.AddConsumerService<MyMessage, MyConsumerService>(
-    options =>
-    {
-        options.UseIdempotency<MyDbContext>();
-    });
+services
+    .AddConsumerService<MyMessage, MyConsumerService>(
+        options =>
+        {
+            options.UseIdempotency<MyDbContext>();
+        });
+services.
+    .AddCap(x => ...)
+    .AddSubscribeFilter<BootstrapFilter>();
 ```
 
 And finally, the the message tracking DbSet must be added to the DbContext:
