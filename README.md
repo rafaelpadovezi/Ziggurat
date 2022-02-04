@@ -26,10 +26,10 @@ Besides, Ziggurat uses [Entity Framework Core](https://docs.microsoft.com/en-us/
 
 Ziggurat is shipped with two packages:
 
-|                     |                                                                                    |
-|---------------------|------------------------------------------------------------------------------------|
-| Ziggurat            | ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat)            |
-| Ziggurat.CapAdapter | ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat.CapAdapter) |
+|                     |                                                                                                                                                     |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ziggurat            | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat)](https://www.nuget.org/packages/Ziggurat/1.0.0-beta)                      |
+| Ziggurat.CapAdapter | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat.CapAdapter)](https://www.nuget.org/packages/Ziggurat.CapAdapter/1.0.0-beta) |
 
 ## Usage
 
