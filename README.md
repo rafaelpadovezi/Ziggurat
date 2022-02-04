@@ -16,6 +16,107 @@ The Idempotency middleware wraps the service enforcing that the message in only 
 
 Also, it's possible to add custom middlewares to the pipeline.
 
+## Requirements
+
+Ziggurat has support only to MS SQL Server (as storage) and [CAP](https://cap.dotnetcore.xyz/) (as messaging library) for now. 
+
+Besides, Ziggurat uses [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/) to track the processed messages and the migrations functionality to create the table with the correct constraints. If you are not using migration on your project the table must be created manually. 
+
+## Install
+
+Ziggurat is shipped with two packages:
+
+|                     |                                                                                    |
+|---------------------|------------------------------------------------------------------------------------|
+| Ziggurat            | ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat)            |
+| Ziggurat.CapAdapter | ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat.CapAdapter) |
+
+## Usage
+
+To use Ziggurat is necessary to create a message and a consumer service type:
+
+```c#
+public class MyMessage : IMessage
+{
+    public string Content { get; set; }
+    public string MessageId { get; set; }
+    public string MessageGroup { get; set; }
+}
+
+public class MyMessageConsumerService : IConsumerService<MyMessage>
+{
+    private readonly MyDbContext _context;
+
+    public OrderCreatedConsumerService(MyDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task ProcessMessageAsync(MyMessage message)
+    {
+        // Do something
+        await _context.SaveChangesAsync();
+    }
+} 
+```
+
+The message type must implements the interface `IMessage`.
+
+It's also required that the consumers are setup on the dependency injection configuration:
+
+
+```c#
+.AddConsumerService<MyMessage, MyConsumerService>(
+    options =>
+    {
+        options.UseIdempotency<MyDbContext>();
+    });
+```
+
+And finally, the the message tracking DbSet must be added to the DbContext:
+
+```c#
+public class MyDbContext : DbContext
+{
+    public DbSet<MessageTracking> Messages { get; set; }
+    ...
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.MapMessageTracker();
+    }
+}
+```
+
+You can look at the samples folder to see more examples of usage.
+
+### Custom middleware
+
+It's possible to create custom middleware for the consumers.
+
+```c#
+public class MyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
+    where TMessage : IMessage
+{
+   public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
+    {
+        // Do something before
+        await next(message);
+        // Do something after
+    }
+}
+```
+
+Also, it's required to register the middleware on the dependency injection configuration.
+
+```c#
+.AddConsumerService<MyMessage, MyMessageConsumerService>(
+    options =>
+    {
+        options.Use<LoggingMiddleware<MyMessage>>();
+    });
+```
+
 ## Run tests
 
 ```shell
