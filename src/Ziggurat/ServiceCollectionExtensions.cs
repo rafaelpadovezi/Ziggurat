@@ -20,8 +20,10 @@ namespace Ziggurat
                         t,
                         t.GetRequiredService<TService>())
                 );
+            
 
             var options = new MiddlewareOptions<TMessage>();
+            services.AddSingleton(options);
             setupAction(options);
             foreach (var extension in options.Extensions)
             {

@@ -10,6 +10,7 @@ namespace Ziggurat
         where TMessage : IMessage
     {
         internal List<Action<IServiceCollection>> Extensions { get; } = new();
+        public string MongoDatabaseName { get; set; }
 
         public void UseIdempotency<TContext>() where TContext : DbContext
         {

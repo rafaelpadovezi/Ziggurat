@@ -8,5 +8,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="MongoDB.Driver" Version="2.15.1" />
+    </ItemGroup>
 
 </Project>

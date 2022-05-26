@@ -2,7 +2,7 @@
 
 namespace Ziggurat.Internal
 {
-    internal static class LoggerExtensions
+    public static class LoggerExtensions
     {
         public static void LogMessageExists<T, TMessage>(this ILogger<T> logger, TMessage message)
             where TMessage : IMessage
