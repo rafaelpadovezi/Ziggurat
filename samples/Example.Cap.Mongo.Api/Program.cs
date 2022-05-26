@@ -1,5 +1,4 @@
 using DotNetCore.CAP;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Ziggurat;
 using Ziggurat.CapAdapter;
@@ -7,7 +6,10 @@ using Ziggurat.CapAdapter;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<Consumer>();
-builder.Services.AddConsumerService<MyMessage, ConsumerService>(_ => { });
+builder.Services.AddConsumerService<MyMessage, ConsumerService>(options =>
+{
+    options.MongoDatabaseName = "test";
+});
 
 builder.Services.AddSingleton<IMongoClient>(
     new MongoClient(builder.Configuration.GetConnectionString("MongoDB")));
