@@ -1,6 +1,4 @@
 ﻿using DotNetCore.CAP;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Ziggurat;
 using Ziggurat.MongoDB;
@@ -35,10 +33,11 @@ public class ConsumerService : IConsumerService<MyMessage>
     public async Task ProcessMessageAsync(MyMessage message)
     {
         // IO
+        var databaseName = "test";
         _logger.LogInformation(message.Text);
         
-        using var session = _client.StartIdempotentTransaction(message);
-        var collection = _client.GetDatabase("test").GetCollection<MyMessage>("test.collection");
+        using var session = _client.StartIdempotentTransaction(message, databaseName);
+        var collection = _client.GetDatabase(databaseName).GetCollection<MyMessage>("test.collection");
 
         await collection.InsertOneAsync(session, message);
     }
