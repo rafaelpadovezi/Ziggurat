@@ -28,8 +28,8 @@ Ziggurat is shipped with two packages:
 
 |                     |                                                                                                                                                     |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ziggurat            | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat)](https://www.nuget.org/packages/Ziggurat/1.0.0-beta)                      |
-| Ziggurat.CapAdapter | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat.CapAdapter)](https://www.nuget.org/packages/Ziggurat.CapAdapter/1.0.0-beta) |
+| Ziggurat            | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat)](https://www.nuget.org/packages/Ziggurat/1.0.0)                      |
+| Ziggurat.CapAdapter | [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Ziggurat.CapAdapter)](https://www.nuget.org/packages/Ziggurat.CapAdapter/1.0.0) |
 
 ## Usage
 
