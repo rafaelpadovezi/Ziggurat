@@ -3,16 +3,16 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:27199",
-      "sslPort": 44340
+      "applicationUrl": "http://localhost:30295",
+      "sslPort": 44344
     }
   },
   "profiles": {
-    "Example.Cap.Mongo.Api": {
+    "Sample.Cap.Mongo": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7121;http://localhost:5121",
+      "applicationUrl": "https://localhost:7136;http://localhost:5136",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

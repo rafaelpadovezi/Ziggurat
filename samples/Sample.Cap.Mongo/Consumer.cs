@@ -3,6 +3,8 @@ using MongoDB.Driver;
 using Ziggurat;
 using Ziggurat.MongoDB;
 
+namespace Sample.Cap.Mongo;
+
 public class Consumer : ICapSubscribe
 {
     private readonly IConsumerService<MyMessage> _service;
@@ -12,7 +14,7 @@ public class Consumer : ICapSubscribe
         _service = service;
     }
 
-    [CapSubscribe("message", Group = "sample.rabbitmq.mongodb")]
+    [CapSubscribe("myapp.paymentCondition.created", Group = "mongo.paymentCondition.created")]
     public async Task ConsumeMessage(MyMessage message)
     {
         await _service.ProcessMessageAsync(message);
@@ -22,9 +24,9 @@ public class Consumer : ICapSubscribe
 public class ConsumerService : IConsumerService<MyMessage>
 {
     private readonly ILogger<ConsumerService> _logger;
-    private readonly MongoClient _client;
+    private readonly IMongoClient _client;
 
-    public ConsumerService(ILogger<ConsumerService> logger, MongoClient client)
+    public ConsumerService(ILogger<ConsumerService> logger, IMongoClient client)
     {
         _logger = logger;
         _client = client;
