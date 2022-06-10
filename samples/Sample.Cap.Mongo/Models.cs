@@ -1,5 +1,7 @@
 ﻿using Ziggurat;
 
+namespace Sample.Cap.Mongo;
+
 public class MyMessage : IMessage
 {
     public string Text { get; set; }

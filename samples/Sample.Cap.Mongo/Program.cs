@@ -1,5 +1,6 @@
 using DotNetCore.CAP;
 using MongoDB.Driver;
+using Sample.Cap.Mongo;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 
@@ -29,10 +30,11 @@ app.MapPost("/", async (IMongoClient client, ICapPublisher capBus) =>
 {
     using (var session = client.StartTransaction(capBus, autoCommit: true))
     {
+        var message = new MyMessage { Text = "Hey there" };
         var collection = client.GetDatabase("test").GetCollection<MyMessage>("test.collection");
-        await collection.InsertOneAsync(session, new MyMessage { Text = "Hey there"});
+        await collection.InsertOneAsync(session, message);
 
-        await capBus.PublishAsync("sample.rabbitmq.mongodb", DateTime.Now);
+        await capBus.PublishAsync("myapp.paymentCondition.created", message);
     }
 
     return Results.Ok();
