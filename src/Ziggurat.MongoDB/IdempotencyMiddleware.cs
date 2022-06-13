@@ -3,25 +3,20 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using Ziggurat.Idempotency;
 using Ziggurat.Internal;
-using Ziggurat.Internal.Storage;
 
 namespace Ziggurat.MongoDB
 {
-    public class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
+    internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
         where TMessage : IMessage
     {
         private readonly ILogger<IdempotencyMiddleware<TMessage>> _logger;
-        private readonly MongoClient _client;
-        private readonly MiddlewareOptions<TMessage> _options;
-        private readonly IStorageHelper _storageHelper;
+        private readonly IMongoClient _client;
 
         public IdempotencyMiddleware(
-            MongoClient client,
-            MiddlewareOptions<TMessage> options,
+            IMongoClient client,
             ILogger<IdempotencyMiddleware<TMessage>> logger)
         {
             _client = client;
-            _options = options;
             _logger = logger;
         }
 
@@ -38,7 +33,9 @@ namespace Ziggurat.MongoDB
 
         private async Task<bool> HasProcessedAsync(TMessage message)
         {
-            var collection = _client.GetDatabase(_options.MongoDatabaseName).GetCollection<MessageTracking>("cap.processed");
+            var collection = _client
+                .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
+                .GetCollection<MessageTracking>("cap.processed");
             var builder = Builders<MessageTracking>.Filter;
             var filter = builder.Eq(x => x.Id, message.MessageId) & builder.Eq(x => x.Type, message.MessageGroup);
                 

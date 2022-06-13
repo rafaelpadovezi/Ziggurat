@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Ziggurat.Internal.Storage;
 
 namespace Ziggurat
 {
@@ -13,7 +12,6 @@ namespace Ziggurat
             where TMessage : IMessage
         {
             services
-                .AddSingleton<IStorageHelper, StorageHelperSqlServer>()
                 .AddScoped<TService>()
                 .AddScoped<IConsumerService<TMessage>>(t =>
                     new PipelineHandler<TMessage>(
@@ -32,10 +30,5 @@ namespace Ziggurat
 
             return services;
         }
-    }
-
-    public interface IMiddlewareExtension
-    {
-        public void AddServices(IServiceCollection services);
     }
 }

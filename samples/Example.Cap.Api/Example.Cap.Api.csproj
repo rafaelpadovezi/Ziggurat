@@ -16,6 +16,7 @@
     
     <ItemGroup>
       <ProjectReference Include="..\..\src\Ziggurat.CapAdapter\Ziggurat.CapAdapter.csproj" />
+      <ProjectReference Include="..\..\src\Ziggurat.SqlServer\Ziggurat.SqlServer.csproj" />
     </ItemGroup>
 
 </Project>

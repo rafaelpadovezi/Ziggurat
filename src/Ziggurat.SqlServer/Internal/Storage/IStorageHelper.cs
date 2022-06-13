@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Ziggurat.Internal.Storage
+namespace Ziggurat.SqlServer.Internal.Storage
 {
     public interface IStorageHelper
     {

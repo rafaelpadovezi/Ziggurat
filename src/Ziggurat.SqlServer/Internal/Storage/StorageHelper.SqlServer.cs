@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Ziggurat.Idempotency;
 
-namespace Ziggurat.Internal.Storage
+namespace Ziggurat.SqlServer.Internal.Storage
 {
     internal class StorageHelperSqlServer : IStorageHelper
     {

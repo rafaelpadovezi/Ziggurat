@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Ziggurat.Idempotency;
 using Ziggurat.Internal;
-using Ziggurat.Internal.Storage;
+using Ziggurat.SqlServer.Internal.Storage;
 
-namespace Ziggurat.Idempotency
+namespace Ziggurat.SqlServer
 {
     public class IdempotencyMiddleware<TMessage, TContext> : IConsumerMiddleware<TMessage>
         where TContext : DbContext
