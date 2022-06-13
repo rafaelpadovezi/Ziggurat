@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ziggurat.Idempotency;
 
-namespace Ziggurat.Idempotency
+namespace Ziggurat.SqlServer
 {
     public static class ModelBuilderExtensions
     {

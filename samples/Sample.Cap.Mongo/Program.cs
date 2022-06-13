@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<Consumer>();
 builder.Services.AddConsumerService<MyMessage, ConsumerService>(options =>
 {
-    options.MongoDatabaseName = "test";
+    options.UseMongoDbIdempotency("test");
 });
 
 builder.Services.AddSingleton<IMongoClient>(

@@ -49,7 +49,7 @@ namespace Example.Cap.Api
                     options =>
                     {
                         options.Use<LoggingMiddleware<OrderCreatedMessage>>();
-                        options.UseIdempotency<ExampleDbContext>();
+                        options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
                     });
         }
 
