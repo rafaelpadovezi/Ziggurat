@@ -2,6 +2,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.MongoDB.Tests.Support;
 
@@ -77,5 +78,47 @@ public class MongoDbStorageTests : TestFixture
     {
         // Act & Assert
         _storage.IsMessageExistsError(new InvalidOperationException()).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasProcessedAsync_MessageHasDifferentQueue_ReturnFalse()
+    {
+        // Arrange
+        var testMessage = new TestMessage("1436814771495108608", "test.queue");
+        using (var _ = MongoClient.StartIdempotentTransaction(testMessage)) { } // insert message
+
+        // Act
+        var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, "other-queue"));
+
+        // Arrange
+        result.Should().Be(false);
+    }
+
+    [Fact]
+    public async Task HasProcessedAsync_MessageHasDifferentId_ReturnFalse()
+    {
+        // Arrange
+        var testMessage = new TestMessage("1436814771495108608", "test.queue");
+        using (var _ = MongoClient.StartIdempotentTransaction(testMessage)) { } // insert message
+
+        // Act
+        var result = await _storage.HasProcessedAsync(new TestMessage("other-id", testMessage.MessageGroup));
+
+        // Arrange
+        result.Should().Be(false);
+    }
+    
+    [Fact]
+    public async Task HasProcessedAsync_MessageIsRepeated_ReturnTrue()
+    {
+        // Arrange
+        var testMessage = new TestMessage("1436814771495108608", "test.queue");
+        using (var _ = MongoClient.StartIdempotentTransaction(testMessage)) { } // insert message
+
+        // Act
+        var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
+
+        // Arrange
+        result.Should().Be(true);
     }
 }
