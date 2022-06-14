@@ -35,9 +35,3 @@ public class TestFixture : IDisposable
         _isDisposed = true;
     }
 }
-
-public class OtherEntity
-{
-    public int Id { get; set; }
-    public string Code { get; set; }
-}

@@ -86,6 +86,13 @@ public class EntityFrameworkStorageTests : TestFixture
         ex.Should().NotBeNull();
         _storage.IsMessageExistsError(ex).Should().BeFalse();
     }
+    
+    [Fact]
+    public void IsMessageExistsError_InvalidOperationException_ShouldBeFalse()
+    {
+        // Act & Assert
+        _storage.IsMessageExistsError(new InvalidOperationException()).Should().BeFalse();
+    }
 
     [Fact]
     public async Task HasProcessedAsync_MessageIsRepeated_ReturnTrue()
