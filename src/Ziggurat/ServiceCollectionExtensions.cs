@@ -22,9 +22,10 @@ public static class ServiceCollectionExtensions
 
 
         var options = new MiddlewareOptions<TMessage>();
-        services.AddSingleton(options);
         setupAction(options);
-        foreach (var extension in options.Extensions) extension(services);
+
+        foreach (var extension in options.Extensions)
+            extension(services);
 
         return services;
     }
