@@ -1,6 +1,5 @@
 ﻿using Example.Cap.Api.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Ziggurat.Idempotency;
 using Ziggurat.SqlServer;
 
 namespace Example.Cap.Api.Infrastructure

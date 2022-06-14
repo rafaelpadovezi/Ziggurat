@@ -1,6 +1,7 @@
 using DotNetCore.CAP;
 using MongoDB.Driver;
 using Sample.Cap.Mongo;
+using System.Globalization;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 
@@ -30,7 +31,7 @@ app.MapPost("/", async (IMongoClient client, ICapPublisher capBus) =>
 {
     using (var session = client.StartTransaction(capBus, autoCommit: true))
     {
-        var message = new MyMessage { Text = "Hey there" };
+        var message = new MyMessage { Text = DateTime.Now.ToString(CultureInfo.InvariantCulture) };
         var collection = client.GetDatabase("test").GetCollection<MyMessage>("test.collection");
         await collection.InsertOneAsync(session, message);
 
