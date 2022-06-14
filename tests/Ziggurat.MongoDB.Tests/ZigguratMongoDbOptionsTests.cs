@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Ziggurat.MongoDB.Tests;
 
+[Collection("TextFixture Collection")]
 public class ZigguratMongoDbOptionsTests
 {
     [Theory]

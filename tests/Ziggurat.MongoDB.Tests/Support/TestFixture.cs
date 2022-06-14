@@ -1,8 +1,10 @@
 ﻿using MongoDB.Driver;
 using System;
+using Xunit;
 
 namespace Ziggurat.MongoDB.Tests.Support;
 
+[Collection("TextFixture Collection")]
 public class TestFixture
 {
     public TestFixture()
