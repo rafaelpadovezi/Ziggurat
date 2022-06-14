@@ -2,18 +2,19 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
+        <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-        <PackageReference Include="DotNetCore.CAP" Version="5.1.2" />
+        <PackageReference Include="DotNetCore.CAP" Version="5.1.2"/>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <PackageReference Include="DotNetCore.CAP" Version="6.0.1" />
+        <PackageReference Include="DotNetCore.CAP" Version="6.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
+        <ProjectReference Include="..\Ziggurat\Ziggurat.csproj"/>
     </ItemGroup>
 
 </Project>

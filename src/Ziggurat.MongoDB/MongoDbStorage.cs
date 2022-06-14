@@ -13,7 +13,7 @@ public class MongoDbStorage : IStorage
     {
         _client = client;
     }
-    
+
     public bool IsMessageExistsError(Exception ex)
     {
         if (ex is not MongoWriteException mongoWriteException)
@@ -33,7 +33,7 @@ public class MongoDbStorage : IStorage
             .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
         var builder = Builders<MessageTracking>.Filter;
         var filter = builder.Eq(x => x.Id, MessageTracking.CreateId(message.MessageId, message.MessageGroup));
-                
+
         return await collection.CountDocumentsAsync(filter) > 0;
     }
 }

@@ -8,10 +8,8 @@ using Ziggurat.CapAdapter;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<Consumer>();
-builder.Services.AddConsumerService<MyMessage, ConsumerService>(options =>
-{
-    options.UseMongoDbIdempotency("test");
-});
+builder.Services.AddConsumerService<MyMessage, ConsumerService>(
+    options => options.UseMongoDbIdempotency("test"));
 
 builder.Services.AddSingleton<IMongoClient>(
     new MongoClient(builder.Configuration.GetConnectionString("MongoDB")));
@@ -29,7 +27,7 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapPost("/", async (IMongoClient client, ICapPublisher capBus) =>
 {
-    using (var session = client.StartTransaction(capBus, autoCommit: true))
+    using (var session = client.StartTransaction(capBus, true))
     {
         var message = new MyMessage { Text = DateTime.Now.ToString(CultureInfo.InvariantCulture) };
         var collection = client.GetDatabase("test").GetCollection<MyMessage>("test.collection");

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Ziggurat
+namespace Ziggurat;
+
+public interface IConsumerService<in TMessage> where TMessage : IMessage
 {
-    public interface IConsumerService<in TMessage> where TMessage : IMessage
-    {
-        Task ProcessMessageAsync(TMessage message);
-    }
+    Task ProcessMessageAsync(TMessage message);
 }

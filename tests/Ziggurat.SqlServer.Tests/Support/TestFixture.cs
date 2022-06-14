@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Diagnostics;
+﻿using System;
 using Xunit;
-using Ziggurat.Idempotency;
 
 namespace Ziggurat.SqlServer.Tests.Support;
 
@@ -36,32 +33,6 @@ public class TestFixture : IDisposable
         }
 
         _isDisposed = true;
-    }
-}
-
-public class TestDbContext : DbContext
-{
-    public DbSet<MessageTracking> Messages { get; set; }
-    public DbSet<MessageTracking> OtherEntity { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder
-            .UseSqlServer("Server=localhost,5100;Initial Catalog=TestDb;User ID=sa;Password=Password1;")
-            .LogTo(message => Debug.WriteLine(message));
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.MapMessageTracker();
-
-        modelBuilder.Entity<OtherEntity>(entity => { entity.HasIndex(x => x.Code).IsUnique(); });
-    }
-
-    public void DetachAllEntities()
-    {
-        foreach (var entry in ChangeTracker.Entries())
-            entry.State = EntityState.Detached;
     }
 }
 
