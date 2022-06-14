@@ -9,6 +9,11 @@ public class MiddlewareOptions<TMessage>
 {
     internal List<Action<IServiceCollection>> Extensions { get; } = new();
 
+    /// <summary>
+    /// Register a middleware to Ziggurat pipeline. Middlewares are executed
+    /// following the order of registration. 
+    /// </summary>
+    /// <typeparam name="TMiddleware">Type of the middleware</typeparam>
     public void Use<TMiddleware>()
         where TMiddleware : class, IConsumerMiddleware<TMessage>
     {

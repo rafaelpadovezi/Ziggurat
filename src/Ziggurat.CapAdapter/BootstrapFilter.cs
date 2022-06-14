@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace Ziggurat.CapAdapter;
 
+/// <summary>
+/// CAP filter that sets the message with the message Id and message Group, which will be
+/// used by Ziggurat pipeline.
+/// </summary>
 public class BootstrapFilter : SubscribeFilter
 {
     public override void OnSubscribeExecuting(ExecutingContext context)
