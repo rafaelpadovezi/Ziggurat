@@ -12,6 +12,6 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\..\docs\icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\docs\icon.png" Pack="true" PackagePath=""/>
     </ItemGroup>
 </Project>

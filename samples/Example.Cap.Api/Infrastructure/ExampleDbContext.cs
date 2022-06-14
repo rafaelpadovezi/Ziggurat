@@ -2,21 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using Ziggurat.SqlServer;
 
-namespace Example.Cap.Api.Infrastructure
+namespace Example.Cap.Api.Infrastructure;
+
+public class ExampleDbContext : DbContext
 {
-    public class ExampleDbContext : DbContext
+    public ExampleDbContext(DbContextOptions<ExampleDbContext> options)
+        : base(options)
     {
-        public ExampleDbContext(DbContextOptions<ExampleDbContext> options)
-            : base(options)
-        {
-        }
+    }
 
-        public DbSet<MessageTracking> Messages { get; set; }
-        public DbSet<Order> Orders { get; set; }
+    public DbSet<MessageTracking> Messages { get; set; }
+    public DbSet<Order> Orders { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.MapMessageTracker();
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.MapMessageTracker();
     }
 }

@@ -13,60 +13,56 @@ using Microsoft.Extensions.Hosting;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 
-namespace Example.Cap.Api
+namespace Example.Cap.Api;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        Configuration = configuration;
+    }
 
-        public IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllers();
-            services.AddDbContext<ExampleDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DbContext")));
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        services.AddDbContext<ExampleDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DbContext")));
 
-            services.AddCap(x =>
+        services.AddCap(x =>
+            {
+                x.UseEntityFramework<ExampleDbContext>();
+
+                x.UseRabbitMQ(o =>
                 {
-                    x.UseEntityFramework<ExampleDbContext>();
+                    o.HostName = Configuration.GetValue<string>("RabbitMQ:HostName");
+                    o.Port = Configuration.GetValue<int>("RabbitMQ:Port");
+                    o.ExchangeName = Configuration.GetValue<string>("RabbitMQ:ExchangeName");
+                });
+            })
+            .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information
 
-                    x.UseRabbitMQ(o =>
-                    {
-                        o.HostName = Configuration.GetValue<string>("RabbitMQ:HostName");
-                        o.Port = Configuration.GetValue<int>("RabbitMQ:Port");
-                        o.ExchangeName = Configuration.GetValue<string>("RabbitMQ:ExchangeName");
-                    });
-                })
-                .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information
+        services
+            .AddScoped<OrderCreatedConsumer>()
+            .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
+                options =>
+                {
+                    options.Use<LoggingMiddleware<OrderCreatedMessage>>();
+                    options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
+                });
+    }
 
-            services
-                .AddScoped<OrderCreatedConsumer>()
-                .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
-                    options =>
-                    {
-                        options.Use<LoggingMiddleware<OrderCreatedMessage>>();
-                        options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
-                    });
-        }
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
+    {
+        if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
+        app.UseRouting();
+
+        app.UseEndpoints(endpoints =>
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Example API using CAP"); });
-                endpoints.MapControllers();
-            });
-        }
+            endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Example API using CAP"); });
+            endpoints.MapControllers();
+        });
     }
 }

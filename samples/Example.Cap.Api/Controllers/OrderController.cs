@@ -1,39 +1,38 @@
-﻿using System.Threading.Tasks;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
 using Example.Cap.Api.Domain.Models;
 using Example.Cap.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-namespace Example.Cap.Api.Controllers
+namespace Example.Cap.Api.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class OrderController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class OrderController : ControllerBase
+    private readonly ICapPublisher _capBus;
+    private readonly ExampleDbContext _context;
+
+    public OrderController(
+        ICapPublisher capPublisher,
+        ExampleDbContext context)
     {
-        private readonly ICapPublisher _capBus;
-        private readonly ExampleDbContext _context;
+        _context = context;
+        _capBus = capPublisher;
+    }
 
-        public OrderController(
-            ICapPublisher capPublisher,
-            ExampleDbContext context)
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder([FromBody] Order order)
+    {
+        _context.Orders.Add(order);
+
+        await using (_context.Database.BeginTransaction(_capBus, true))
         {
-            _context = context;
-            _capBus = capPublisher;
+            await _capBus.PublishAsync("order.created", new { order.Number });
+
+            await _context.SaveChangesAsync();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] Order order)
-        {
-            _context.Orders.Add(order);
-
-            await using (_context.Database.BeginTransaction(_capBus, true))
-            {
-                await _capBus.PublishAsync("order.created", new {order.Number});
-
-                await _context.SaveChangesAsync();
-            }
-
-            return Ok();
-        }
+        return Ok();
     }
 }

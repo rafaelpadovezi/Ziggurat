@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace Example.Cap.Api.Domain.Models
+namespace Example.Cap.Api.Domain.Models;
+
+public class Order
 {
-    public class Order
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public string Number { get; set; }
-    }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Number { get; set; }
 }

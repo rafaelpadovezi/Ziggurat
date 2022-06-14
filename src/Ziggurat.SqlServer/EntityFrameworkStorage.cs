@@ -2,13 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Ziggurat.Idempotency;
 
-namespace Ziggurat.SqlServer.Internal.Storage;
+namespace Ziggurat.SqlServer;
 
 public class EntityFrameworkStorage<TContext> : IStorage
     where TContext : DbContext
 {
-    private readonly DbSet<MessageTracking> _messages;
     private const int SqlServerViolationConstraintErrorCode = 2627;
+    private readonly DbSet<MessageTracking> _messages;
 
     public EntityFrameworkStorage(TContext context)
     {
@@ -16,7 +16,7 @@ public class EntityFrameworkStorage<TContext> : IStorage
 
         _messages = context.Set<MessageTracking>();
     }
-    
+
     public bool IsMessageExistsError(Exception ex)
     {
         if (ex is not DbUpdateException dbUpdateException)
@@ -43,7 +43,7 @@ public class EntityFrameworkStorage<TContext> : IStorage
 
         return messageExists;
     }
-    
+
     private static void CheckIfDbSetExists(TContext context)
     {
         var metaData = context.Model.FindEntityType(typeof(MessageTracking));

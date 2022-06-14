@@ -1,8 +1,7 @@
-﻿namespace Ziggurat
+﻿namespace Ziggurat;
+
+public interface IMessage
 {
-    public interface IMessage
-    {
-        string MessageId { get; set; }
-        string MessageGroup { get; set; }
-    }
+    string MessageId { get; set; }
+    string MessageGroup { get; set; }
 }

@@ -1,23 +1,24 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Ziggurat
+namespace Ziggurat;
+
+public class MiddlewareOptions<TMessage>
+    where TMessage : IMessage
 {
-    public class MiddlewareOptions<TMessage>
-        where TMessage : IMessage
+    internal List<Action<IServiceCollection>> Extensions { get; } = new();
+
+    public void Use<TMiddleware>()
+        where TMiddleware : class, IConsumerMiddleware<TMessage>
     {
-        internal List<Action<IServiceCollection>> Extensions { get; } = new();
-
-        public void Use<TMiddleware>()
-            where TMiddleware : class, IConsumerMiddleware<TMessage>
+        static void CustomerMiddlewareAction(IServiceCollection services)
         {
-            static void CustomerMiddlewareAction(IServiceCollection services) =>
-                services.AddScoped<
-                    IConsumerMiddleware<TMessage>,
-                    TMiddleware>();
-
-            Extensions.Add(CustomerMiddlewareAction);
+            services.AddScoped<
+                IConsumerMiddleware<TMessage>,
+                TMiddleware>();
         }
+
+        Extensions.Add(CustomerMiddlewareAction);
     }
 }

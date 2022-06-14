@@ -1,23 +1,22 @@
-﻿using System.Threading.Tasks;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
 using Example.Cap.Api.Dtos;
+using System.Threading.Tasks;
 using Ziggurat;
 
-namespace Example.Cap.Api.Consumers
+namespace Example.Cap.Api.Consumers;
+
+public class OrderCreatedConsumer : ICapSubscribe
 {
-    public class OrderCreatedConsumer : ICapSubscribe
+    private readonly IConsumerService<OrderCreatedMessage> _service;
+
+    public OrderCreatedConsumer(IConsumerService<OrderCreatedMessage> service)
     {
-        private readonly IConsumerService<OrderCreatedMessage> _service;
+        _service = service;
+    }
 
-        public OrderCreatedConsumer(IConsumerService<OrderCreatedMessage> service)
-        {
-            _service = service;
-        }
-
-        [CapSubscribe("order.created", Group = "catalog.order.created")]
-        public async Task UpdateProductStock(OrderCreatedMessage message)
-        {
-            await _service.ProcessMessageAsync(message);
-        }
+    [CapSubscribe("order.created", Group = "catalog.order.created")]
+    public async Task UpdateProductStock(OrderCreatedMessage message)
+    {
+        await _service.ProcessMessageAsync(message);
     }
 }
