@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Ziggurat.SqlServer;
+using Ziggurat.Idempotency;
 using Ziggurat.SqlServer.Internal.Storage;
 
 namespace Ziggurat;
@@ -13,8 +13,8 @@ public static class MiddlewareOptionsExtensions
     {
         static void IdempotencySetupAction(IServiceCollection services) =>
             services
-                .AddSingleton<IStorageHelper, StorageHelperSqlServer>()
-                .AddScoped<IConsumerMiddleware<TMessage>, IdempotencyMiddleware<TMessage, TContext>>();
+                .AddScoped<IStorage, EntityFrameworkStorage<TContext>>()
+                .AddScoped<IConsumerMiddleware<TMessage>, IdempotencyMiddleware<TMessage>>();
 
         options.Extensions.Add(IdempotencySetupAction);
     }

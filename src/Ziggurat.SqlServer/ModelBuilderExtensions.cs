@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ziggurat.Idempotency;
 
 namespace Ziggurat.SqlServer
 {

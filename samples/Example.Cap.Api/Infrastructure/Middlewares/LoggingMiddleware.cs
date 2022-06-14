@@ -33,6 +33,7 @@ namespace Example.Cap.Api.Infrastructure.Middlewares
             {
                 stopWatch.Stop();
                 _logger.LogError(ex, "Executed {MessageGroup}:{MessageId} with error in {Elapsed} ms.");
+                throw;
             }
         }
     }

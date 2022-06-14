@@ -17,4 +17,6 @@ internal static class ZigguratMongoDbOptions
         }
         set => _mongoDatabaseName = value;
     }
+
+    public const string ProcessedCollection = "ziggurat.processed";
 }
