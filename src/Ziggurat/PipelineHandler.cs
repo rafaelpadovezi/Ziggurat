@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ziggurat;
 
-public class PipelineHandler<TMessage> : IConsumerService<TMessage>
+internal class PipelineHandler<TMessage> : IConsumerService<TMessage>
     where TMessage : IMessage
 {
     private readonly IConsumerService<TMessage> _service;
