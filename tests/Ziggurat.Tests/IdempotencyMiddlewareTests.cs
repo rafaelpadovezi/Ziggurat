@@ -112,7 +112,7 @@ public class IdempotentServiceTests
             Times.Never);
     }
 
-    private IdempotencyMiddleware<TestMessage> CreateIdempotencyMiddleware(
+    private static IdempotencyMiddleware<TestMessage> CreateIdempotencyMiddleware(
         Mock<IStorage> mockStorage,
         Mock<ILogger<IdempotencyMiddleware<TestMessage>>> mockLogger = null)
     {
