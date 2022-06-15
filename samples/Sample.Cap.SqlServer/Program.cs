@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace Example.Cap.Api;
+namespace Sample.Cap.SqlServer;
 
 public static class Program
 {

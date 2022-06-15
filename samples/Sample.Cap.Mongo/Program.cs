@@ -33,7 +33,7 @@ app.MapPost("/", async (IMongoClient client, ICapPublisher capBus) =>
         var collection = client.GetDatabase("test").GetCollection<MyMessage>("test.collection");
         await collection.InsertOneAsync(session, message);
 
-        await capBus.PublishAsync("myapp.paymentCondition.created", message);
+        await capBus.PublishAsync("mymessage.created", message);
     }
 
     return Results.Ok();

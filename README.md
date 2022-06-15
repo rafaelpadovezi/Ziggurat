@@ -7,6 +7,7 @@ A .NET library to create message consumers.
 
 Ziggurat implements functionalities to help solve common problems when dealing with messages:
 - [Idempotency](https://microservices.io/patterns/communication-style/idempotent-consumer.html)
+- Middleware: allows to create middlewares to consumers to handle logging, validation and whatever is needed. 
 
 ## How it works
 
@@ -16,22 +17,29 @@ The Idempotency middleware wraps the service enforcing that the message in only 
 
 Also, it's possible to add custom middlewares to the pipeline.
 
-## Requirements
+## Support
 
-Ziggurat has support only to MS SQL Server (as storage) and [CAP](https://cap.dotnetcore.xyz/) (as messaging library) for now. 
-
-Besides, Ziggurat uses [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/) to track the processed messages and the migrations functionality to create the table with the correct constraints. If you are not using migration on your project the table must be created manually. 
+Ziggurat has support to:
+- Storage:
+  - MS SQL Server
+  - MongoDB
+- Messaging Library
+  - [CAP](https://cap.dotnetcore.xyz/)
 
 ## Install
 
-Ziggurat is shipped with two packages:
-
-|                     |                                                                                                                                                     |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ziggurat            | [![Nuget](https://img.shields.io/nuget/v/Ziggurat)](https://www.nuget.org/packages/Ziggurat/1.0.0)                      |
-| Ziggurat.CapAdapter | [![Nuget](https://img.shields.io/nuget/v/Ziggurat.CapAdapter)](https://www.nuget.org/packages/Ziggurat.CapAdapter/1.0.0) |
+|                     |                                                                                                              |
+|---------------------|--------------------------------------------------------------------------------------------------------------|
+| Ziggurat            | [![Nuget](https://img.shields.io/nuget/v/Ziggurat)](https://www.nuget.org/packages/Ziggurat)                 |
+| Ziggurat.CapAdapter | [![Nuget](https://img.shields.io/nuget/v/Ziggurat.CapAdapter)](https://www.nuget.org/packages/Ziggurat.CapAdapter) |
+| Ziggurat.SqlServer  | [![Nuget](https://img.shields.io/nuget/v/Ziggurat.SqlServer)](https://www.nuget.org/packages/Ziggurat.SqlServer) |
+| Ziggurat.MongoDB    | [![Nuget](https://img.shields.io/nuget/v/Ziggurat.MongoDB)](https://www.nuget.org/packages/Ziggurat.MongoDB) |
 
 ## Usage
+
+### SQL Server with Entity Framework
+
+Ziggurat integrates with the application [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/) to track the processed messages and ensures that each message is processed only once. Also, the EF Core migrations are used to create the message tracking table with the correct constraints. If you are not using migration in your project the table must be created manually.
 
 To use Ziggurat is necessary to create a message and a consumer service type:
 
@@ -47,18 +55,21 @@ public class MyMessageConsumerService : IConsumerService<MyMessage>
 {
     private readonly MyDbContext _context;
 
-    public OrderCreatedConsumerService(MyDbContext context)
+    public MyMessageConsumerService(MyDbContext context)
     {
         _context = context;
     }
 
     public async Task ProcessMessageAsync(MyMessage message)
     {
-        // Do something
+        // Change the application bussiness objects tracked by EF Core
+        _context.SomeEntity.Add(x);
         await _context.SaveChangesAsync();
     }
 } 
 ```
+
+Ziggurat.SqlServer ensures that the processed messages are tracked by the EF Core `DbContext`. Calling `SaveChangesAsync` will save the changes made to the business objects and the processed message to the DB.
 
 The message type must implements the interface `IMessage`.
 
@@ -70,7 +81,7 @@ services
     .AddConsumerService<MyMessage, MyConsumerService>(
         options =>
         {
-            options.UseIdempotency<MyDbContext>();
+            options.UseEntityFrameworkIdempotency<MyMessage, MyDbContext>();
         });
 services.
     .AddCap(x => ...)
@@ -92,7 +103,38 @@ public class MyDbContext : DbContext
 }
 ```
 
-You can look at the samples folder to see more examples of usage.
+### MongoDB
+
+Using Ziggurat with MongoDB has some differences compared to SQL Server. The dependency injection registration must call the method `UseMongoDbIdempotency`:
+
+```c#
+builder.Services.AddConsumerService<MyMessage, ConsumerService>(
+    options => options.UseMongoDbIdempotency("databaseName"));
+```
+
+To keep the consumer operation atomic, is necessary to use the method `StartIdempotentTransaction``:
+
+```c#
+
+public class MyMessageConsumerService : IConsumerService<MyMessage>
+{
+    private readonly IMongoClient _client;
+
+    public MyMessageConsumerService(IMongoClient client)
+    {
+        _client = client;
+    }
+
+    public async Task ProcessMessageAsync(MyMessage message)
+    {
+        using var session = _client.StartIdempotentTransaction(message);
+        // save business object
+        var collection = _client.GetDatabase("databaseName").GetCollection<SomeEntity>("someEntity");
+        await collection.InsertOneAsync(session, x);
+    }
+}
+```
+
 
 ### Custom middleware
 
@@ -121,9 +163,13 @@ Also, it's required to register the middleware on the dependency injection confi
     });
 ```
 
+Important to note that multiple middlewares can be registered to the same consumer. They are executed following the order of the registration.
+
+You can look at the samples folder to see more examples of usage.
+
 ## Run tests
 
 ```shell
-docker compose up -d sqlserver
+docker compose up -d mongoclustersetup sqlserver
 dotnet test
 ```

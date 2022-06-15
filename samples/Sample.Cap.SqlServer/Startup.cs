@@ -1,8 +1,3 @@
-using Example.Cap.Api.Consumers;
-using Example.Cap.Api.Domain.Services;
-using Example.Cap.Api.Dtos;
-using Example.Cap.Api.Infrastructure;
-using Example.Cap.Api.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,10 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sample.Cap.SqlServer.Consumers;
+using Sample.Cap.SqlServer.Domain.Services;
+using Sample.Cap.SqlServer.Dtos;
+using Sample.Cap.SqlServer.Infrastructure;
+using Sample.Cap.SqlServer.Infrastructure.Middlewares;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 
-namespace Example.Cap.Api;
+namespace Sample.Cap.SqlServer;
 
 public class Startup
 {

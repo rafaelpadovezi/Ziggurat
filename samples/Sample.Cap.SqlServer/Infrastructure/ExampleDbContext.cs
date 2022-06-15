@@ -1,8 +1,8 @@
-﻿using Example.Cap.Api.Domain.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Sample.Cap.SqlServer.Domain.Models;
 using Ziggurat.SqlServer;
 
-namespace Example.Cap.Api.Infrastructure;
+namespace Sample.Cap.SqlServer.Infrastructure;
 
 public class ExampleDbContext : DbContext
 {

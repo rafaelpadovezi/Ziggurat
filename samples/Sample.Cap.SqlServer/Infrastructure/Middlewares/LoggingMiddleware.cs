@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Ziggurat;
 
-namespace Example.Cap.Api.Infrastructure.Middlewares;
+namespace Sample.Cap.SqlServer.Infrastructure.Middlewares;
 
 public class LoggingMiddleware<TMessage> : IConsumerMiddleware<TMessage>
     where TMessage : IMessage

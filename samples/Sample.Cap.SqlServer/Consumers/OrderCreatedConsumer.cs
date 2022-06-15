@@ -1,9 +1,9 @@
 ﻿using DotNetCore.CAP;
-using Example.Cap.Api.Dtos;
+using Sample.Cap.SqlServer.Dtos;
 using System.Threading.Tasks;
 using Ziggurat;
 
-namespace Example.Cap.Api.Consumers;
+namespace Sample.Cap.SqlServer.Consumers;
 
 public class OrderCreatedConsumer : ICapSubscribe
 {

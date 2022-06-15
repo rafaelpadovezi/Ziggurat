@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ziggurat.Tests", "tests\Zig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ziggurat.CapAdapter", "src\Ziggurat.CapAdapter\Ziggurat.CapAdapter.csproj", "{24D784FD-5FD1-4D57-A858-03CDDE3B0C93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Cap.Api", "samples\Example.Cap.Api\Example.Cap.Api.csproj", "{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Cap.SqlServer", "samples\Sample.Cap.SqlServer\Sample.Cap.SqlServer.csproj", "{5D6F3BFC-BD8B-45CA-BAB5-7D32ABB23C89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ziggurat.MongoDB", "src\Ziggurat.MongoDB\Ziggurat.MongoDB.csproj", "{0350E066-110B-4323-970A-93B084BE09A3}"
 EndProject
