@@ -8,7 +8,7 @@ public class MessageTracking
         Type = type;
     }
 
-    public string Id { get; set; }
-    public string Type { get; set; }
-    public DateTime DateTime { get; } = DateTime.Now;
+    public string Id { get; private set; }
+    public string Type { get; private set; }
+    public DateTime DateTime { get; private set; } = DateTime.Now;
 }
