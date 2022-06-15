@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Example.Cap.Api.Domain.Models;
+namespace Sample.Cap.SqlServer.Domain.Models;
 
 public class Order
 {

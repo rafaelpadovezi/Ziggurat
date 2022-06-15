@@ -1,6 +1,6 @@
 ﻿using Ziggurat;
 
-namespace Example.Cap.Api.Dtos;
+namespace Sample.Cap.SqlServer.Dtos;
 
 public record OrderCreatedMessage(string Number) : IMessage
 {

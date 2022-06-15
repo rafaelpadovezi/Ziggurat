@@ -1,10 +1,10 @@
-﻿using Example.Cap.Api.Dtos;
-using Example.Cap.Api.Infrastructure;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Sample.Cap.SqlServer.Dtos;
+using Sample.Cap.SqlServer.Infrastructure;
 using System.Threading.Tasks;
 using Ziggurat;
 
-namespace Example.Cap.Api.Domain.Services;
+namespace Sample.Cap.SqlServer.Domain.Services;
 
 public class OrderCreatedConsumerService : IConsumerService<OrderCreatedMessage>
 {

@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Example.Cap.Api.Infrastructure.Migrations
+#nullable disable
+
+namespace Sample.Cap.SqlServer.Migrations
 {
     public partial class InitialCreate : Migration
     {

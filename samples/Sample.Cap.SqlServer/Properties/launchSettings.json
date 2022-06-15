@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Example.Cap.Api": {
+    "Sample.Cap.SqlServer": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,

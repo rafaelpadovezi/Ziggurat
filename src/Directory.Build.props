@@ -1,7 +1,6 @@
 <Project>
     <PropertyGroup>
-        <VersionPrefix>1.0.1</VersionPrefix>
-        <VersionSuffix>alpha</VersionSuffix>
+        <VersionPrefix>1.1.0</VersionPrefix>
         <Authors>Rafael Miranda</Authors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

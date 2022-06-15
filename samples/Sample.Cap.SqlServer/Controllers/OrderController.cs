@@ -1,10 +1,10 @@
 ﻿using DotNetCore.CAP;
-using Example.Cap.Api.Domain.Models;
-using Example.Cap.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Sample.Cap.SqlServer.Domain.Models;
+using Sample.Cap.SqlServer.Infrastructure;
 using System.Threading.Tasks;
 
-namespace Example.Cap.Api.Controllers;
+namespace Sample.Cap.SqlServer.Controllers;
 
 [ApiController]
 [Route("[controller]")]

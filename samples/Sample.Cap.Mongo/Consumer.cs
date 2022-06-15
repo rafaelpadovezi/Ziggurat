@@ -12,7 +12,7 @@ public class Consumer : ICapSubscribe
         _service = service;
     }
 
-    [CapSubscribe("myapp.paymentCondition.created", Group = "mongo.paymentCondition.created")]
+    [CapSubscribe("mymessage.created", Group = "mongo.mymessage.created")]
     public async Task ConsumeMessage(MyMessage message)
     {
         await _service.ProcessMessageAsync(message);
