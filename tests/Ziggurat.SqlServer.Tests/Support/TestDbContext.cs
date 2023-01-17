@@ -12,7 +12,7 @@ public class TestDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseSqlServer("Server=localhost,5100;Initial Catalog=TestDb;User ID=sa;Password=Password1;")
+            .UseSqlServer("Server=localhost,5100;Initial Catalog=TestDb;User ID=sa;Password=Password1;;TrustServerCertificate=True")
             .LogTo(message => Debug.WriteLine(message), LogLevel.Information)
             .EnableSensitiveDataLogging();
     }
