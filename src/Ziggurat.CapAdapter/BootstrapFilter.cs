@@ -2,6 +2,7 @@
 using DotNetCore.CAP.Messages;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ziggurat.CapAdapter;
 
@@ -11,7 +12,7 @@ namespace Ziggurat.CapAdapter;
 /// </summary>
 public class BootstrapFilter : SubscribeFilter
 {
-    public override void OnSubscribeExecuting(ExecutingContext context)
+    public override Task OnSubscribeExecutingAsync(ExecutingContext context)
     {
         var message = context.Arguments
             .FirstOrDefault(x => x is IMessage);
@@ -19,5 +20,6 @@ public class BootstrapFilter : SubscribeFilter
             throw new InvalidOperationException("Message must be of type IMessage");
         ((IMessage)message).MessageId = context.DeliverMessage.GetId();
         ((IMessage)message).MessageGroup = context.DeliverMessage.GetGroup();
+        return Task.CompletedTask;
     }
 }
