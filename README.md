@@ -131,6 +131,8 @@ public class MyMessageConsumerService : IConsumerService<MyMessage>
         // save business object
         var collection = _client.GetDatabase("databaseName").GetCollection<SomeEntity>("someEntity");
         await collection.InsertOneAsync(session, x);
+        // must commit transaction
+        await session.CommitTransactionAsync();
     }
 }
 ```

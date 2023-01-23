@@ -48,7 +48,7 @@ public static class IMongoClientExtensions
         client
             .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
             .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection)
-            .InsertOne(new MessageTracking(message.MessageId, message.MessageGroup));
+            .InsertOne(clientSessionHandle, new MessageTracking(message.MessageId, message.MessageGroup));
 
         return clientSessionHandle;
     }

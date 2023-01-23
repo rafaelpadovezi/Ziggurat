@@ -24,5 +24,6 @@ public class ConsumerService : IConsumerService<MyMessage>
         var collection = _client.GetDatabase(databaseName).GetCollection<MyMessage>("test.collection");
         // save business object
         await collection.InsertOneAsync(session, message);
+        await session.CommitTransactionAsync();
     }
 }
