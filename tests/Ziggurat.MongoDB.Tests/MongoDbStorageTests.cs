@@ -22,8 +22,9 @@ public class MongoDbStorageTests : TestFixture
     {
         // Arrange
         var tracking = new TestMessage("1436814771495108608", "test.queue");
-        using (var _ = MongoClient.StartIdempotentTransaction(tracking))
+        using (var session = MongoClient.StartIdempotentTransaction(tracking))
         {
+            session.CommitTransaction();
         }
 
         Exception exception = null;
@@ -90,7 +91,7 @@ public class MongoDbStorageTests : TestFixture
         // Act
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, "other-queue"));
 
-        // Arrange
+        // Assert
         result.Should().Be(false);
     }
 
@@ -104,7 +105,7 @@ public class MongoDbStorageTests : TestFixture
         // Act
         var result = await _storage.HasProcessedAsync(new TestMessage("other-id", testMessage.MessageGroup));
 
-        // Arrange
+        // Assert
         result.Should().Be(false);
     }
     
@@ -113,12 +114,38 @@ public class MongoDbStorageTests : TestFixture
     {
         // Arrange
         var testMessage = new TestMessage("1436814771495108608", "test.queue");
-        using (var _ = MongoClient.StartIdempotentTransaction(testMessage)) { } // insert message
+        using (var session = MongoClient.StartIdempotentTransaction(testMessage))
+        {
+            await session.CommitTransactionAsync();
+        } // insert message
 
         // Act
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
 
-        // Arrange
+        // Assert
         result.Should().Be(true);
+    }
+    
+    [Fact]
+    public async Task StartIdempotentTransaction_ExceptionIsThrown_RollbackInsert()
+    {
+        // Arrange
+        var testMessage = new TestMessage("1436814771495108608", "test.queue");
+
+        // Act
+        try
+        {
+            using (var _ = MongoClient.StartIdempotentTransaction(testMessage))
+            {
+                throw new Exception();
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        // Assert
+        var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
+        result.Should().BeFalse();
     }
 }
