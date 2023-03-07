@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+      <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
         <PackageReference Include="DotNetCore.CAP.MongoDB" Version="7.1.0" />
         <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.1.0" />
     </ItemGroup>
