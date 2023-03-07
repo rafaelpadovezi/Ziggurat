@@ -1,23 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>10.0</LangVersion>
-        <NoWarn>1591</NoWarn>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<LangVersion>10.0</LangVersion>
+		<NoWarn>1591</NoWarn>
+	</PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
-    </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>Ziggurat.MongoDB.Tests</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<PackageReference Include="MongoDB.Driver" Version="2.19.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+		<PackageReference Include="MongoDB.Driver" Version="2.19.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Ziggurat.MongoDB.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 </Project>

@@ -1,17 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>10.0</LangVersion>
-        <NoWarn>1591</NoWarn>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<LangVersion>10.0</LangVersion>
+		<NoWarn>1591</NoWarn>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.1.0" />
-    </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<PackageReference Include="DotNetCore.CAP" Version="7.1.0" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
-    </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+		<PackageReference Include="DotNetCore.CAP" Version="7.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
+	</ItemGroup>
 
 </Project>
