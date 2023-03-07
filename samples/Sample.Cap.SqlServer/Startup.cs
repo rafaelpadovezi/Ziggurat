@@ -39,6 +39,8 @@ public class Startup
                     o.HostName = Configuration.GetValue<string>("RabbitMQ:HostName");
                     o.Port = Configuration.GetValue<int>("RabbitMQ:Port");
                     o.ExchangeName = Configuration.GetValue<string>("RabbitMQ:ExchangeName");
+                    //set optionally the prefetch count for messages (how many will enqueue in memory at a time before ack)
+                    o.BasicQosOptions = new DotNetCore.CAP.RabbitMQOptions.BasicQos(1);
                 });
             })
             .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information
