@@ -5,9 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="6.0.1" />
-        <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.1" />
-        <PackageReference Include="DotNetCore.CAP.SqlServer" Version="6.0.1" />
+        <PackageReference Include="DotNetCore.CAP" Version="7.1.0" />
+        <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.1.0" />
+        <PackageReference Include="DotNetCore.CAP.SqlServer" Version="7.1.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
