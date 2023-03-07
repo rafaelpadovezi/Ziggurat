@@ -5,9 +5,11 @@
 		<LangVersion>10.0</LangVersion>
 		<NoWarn>1591</NoWarn>
 	</PropertyGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="DotNetCore.CAP" Version="7.1.0" />
 	</ItemGroup>
+	
 	<ItemGroup>
 		<ProjectReference Include="..\Ziggurat\Ziggurat.csproj" />
 	</ItemGroup>

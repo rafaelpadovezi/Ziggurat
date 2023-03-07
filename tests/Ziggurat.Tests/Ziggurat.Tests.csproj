@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src\Ziggurat\Ziggurat.csproj" />
+		<ProjectReference Include="..\..\src\Ziggurat\Ziggurat.csproj" />
 	</ItemGroup>
 
 </Project>

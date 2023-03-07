@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src\Ziggurat.MongoDB\Ziggurat.MongoDB.csproj" />
+		<ProjectReference Include="..\..\src\Ziggurat.MongoDB\Ziggurat.MongoDB.csproj" />
 	</ItemGroup>
 
 </Project>
