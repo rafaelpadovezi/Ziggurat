@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.SqlServer.Tests.Support;
@@ -86,7 +88,7 @@ public class EntityFrameworkStorageTests : TestFixture
         ex.Should().NotBeNull();
         _storage.IsMessageExistsError(ex).Should().BeFalse();
     }
-    
+
     [Fact]
     public void IsMessageExistsError_InvalidOperationException_ShouldBeFalse()
     {
@@ -170,5 +172,42 @@ public class EntityFrameworkStorageTests : TestFixture
         // Assert
         act.Should().Throw<InvalidOperationException>().WithMessage(
             "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
+    }
+
+    [Fact]
+    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldREturnO()
+    {
+        // Arrange
+
+        var dbRealContext = new TestDbContext();
+        var storageWithRealDbContext = new EntityFrameworkStorage<TestDbContext>(dbRealContext);
+
+        var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
+        var listTrackings = new List<MessageTracking> { tracking1, tracking2, tracking3, tracking4, tracking5, tracking6 };
+        dbRealContext.AddRange(listTrackings);
+        await dbRealContext.SaveChangesAsync();
+
+        await dbRealContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
+
+        // Act
+        await storageWithRealDbContext.DeleteMessagesHistoryOltherThanAsync(30);
+        await dbRealContext.SaveChangesAsync();
+
+        // Assert
+        dbRealContext.Messages.Count().Should().Be(3);
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108601").Should().NotBeNull();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108602").Should().NotBeNull();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108603").Should().NotBeNull();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108601").Should().NotBeNull();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108604").Should().BeEmpty();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108605").Should().BeEmpty();
+        dbRealContext.Messages.Where(m => m.Id == "1436814771495108606").Should().BeEmpty();
+
+        await dbRealContext.Database.ExecuteSqlAsync($"TRUNCATE TABLE MessageTracking");
     }
 }

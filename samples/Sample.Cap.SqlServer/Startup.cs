@@ -47,6 +47,7 @@ public class Startup
 
         services
             .AddScoped<OrderCreatedConsumer>()
+            .AddZigguratCleaner(options )
             .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
                 options =>
                 {

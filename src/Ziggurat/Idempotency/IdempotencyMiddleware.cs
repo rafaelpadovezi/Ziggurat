@@ -21,6 +21,7 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
 
     public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
     {
+
         if (await _storage.HasProcessedAsync(message))
         {
             _logger.LogMessageExists(message);
@@ -29,7 +30,7 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
 
         try
         {
-            await next(message);
+            await next(message);           
         }
         catch (Exception ex) when (_storage.IsMessageExistsError(ex))
         {
@@ -37,5 +38,13 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
             // was already processed and should do nothing
             _logger.LogMessageExists(message);
         }
+    }
+
+    public async Task DeleteMessageHistory(int deleteOltherThanDays)
+    {
+        var deleteCount = await _storage.DeleteMessagesHistoryOltherThanAsync(deleteOltherThanDays);
+        
+        _logger.LogDeleteOlderMessages(deleteCount);
+
     }
 }

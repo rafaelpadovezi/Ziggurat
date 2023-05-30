@@ -10,4 +10,9 @@ public static class LoggerExtensions
         logger.LogInformation(
             "Message was processed already. Ignoring {MessageId}:{Type}.", message.MessageId, message.MessageGroup);
     }
+    internal static void LogDeleteOlderMessages<T>(this ILogger<T> logger, int olderThanDays)
+    {
+        logger.LogInformation(
+            "Deleted messages older than {olderThanDays} days.", olderThanDays);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Ziggurat.Idempotency;
 
 namespace Ziggurat.SqlServer;
@@ -50,5 +51,18 @@ public class EntityFrameworkStorage<TContext> : IStorage
         if (metaData == null)
             throw new InvalidOperationException(
                 "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
+    }
+
+    public async Task<int> DeleteMessagesHistoryOltherThanAsync(int days)
+    {
+        var messagesToDelete = await _messages
+           .Where(x => x.DateTime <= DateTime.Now.AddDays(-days))
+           .ToListAsync();
+
+        _messages.RemoveRange(messagesToDelete);
+
+        var count = messagesToDelete != null ? messagesToDelete.Count : 0;
+
+        return count;
     }
 }
