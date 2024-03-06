@@ -33,7 +33,7 @@ namespace Ziggurat.Cleaner
         {
             _logger = logger;
             _storage = storage;
-            _logger.LogInformation("Set to clean older than {deleteOltherThanDays} days", _deleteOltherThanDays);
+            _logger.LogInformation("Set to clean older than {deleteOltherThanDays} days.", _deleteOltherThanDays);
             await DeleteMessageHistory(_deleteOltherThanDays);
             await _next(context);
         }
@@ -47,7 +47,7 @@ namespace Ziggurat.Cleaner
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Delete messages histoy failed. with error: {message}", ex.InnerException.Message ?? ex.Message);
+                _logger.LogError(ex, "Delete messages history failed with error: {message}", ex.InnerException.Message ?? ex.Message);
             }
         }
     }
