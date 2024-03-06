@@ -1,10 +1,12 @@
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.MongoDB.Tests.Support;
+using static MongoDB.Driver.WriteConcern;
 
 namespace Ziggurat.MongoDB.Tests;
 
@@ -35,7 +37,7 @@ public class MongoDbStorageTests : TestFixture
         {
             using var _ = MongoClient.StartIdempotentTransaction(tracking);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             exception = ex;
         }
@@ -44,7 +46,7 @@ public class MongoDbStorageTests : TestFixture
         exception.Should().NotBeNull();
         _storage.IsMessageExistsError(exception).Should().BeTrue();
     }
-    
+
     [Fact]
     public void IsMessageExistsError_TryDuplicateKeyOtherEntity_ReturnFalse()
     {
@@ -64,7 +66,7 @@ public class MongoDbStorageTests : TestFixture
                 ["_id"] = "1"
             }));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             exception = ex;
         }
@@ -108,7 +110,7 @@ public class MongoDbStorageTests : TestFixture
         // Assert
         result.Should().Be(false);
     }
-    
+
     [Fact]
     public async Task HasProcessedAsync_MessageIsRepeated_ReturnTrue()
     {
@@ -125,7 +127,7 @@ public class MongoDbStorageTests : TestFixture
         // Assert
         result.Should().Be(true);
     }
-    
+
     [Fact]
     public async Task StartIdempotentTransaction_ExceptionIsThrown_RollbackInsert()
     {
@@ -147,5 +149,52 @@ public class MongoDbStorageTests : TestFixture
         // Assert
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
         result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldDeleteOlder()
+    {
+        // Arrange
+        var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
+
+        var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
+
+        var messages = new List<MessageTracking>() { tracking1, tracking2, tracking3, tracking4, tracking5, tracking6 };
+
+        await testCollection.InsertManyAsync(messages);
+
+        //update first 3 with older dates
+        for (var i = 1; i < 4; i++)
+        {
+            var filter = Builders<MessageTracking>.Filter
+                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
+            var update = Builders<MessageTracking>.Update
+                .Set(x => x.DateTime, DateTime.Now.AddDays(-50));
+
+            await testCollection.UpdateOneAsync(filter, update);
+        }
+
+        // Act       
+        await _storage.DeleteMessagesHistoryOltherThanAsync(30);
+
+        // Assert
+        for (var i = 1; i < 7; i++)
+        {
+            var filter = Builders<MessageTracking>.Filter
+                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
+
+
+            var finder = await testCollection.FindAsync(filter);
+            var message = finder.FirstOrDefault();
+            if (i < 4)
+                message.Should().BeNull();
+            else
+                message.Should().NotBeNull();
+        }
     }
 }
