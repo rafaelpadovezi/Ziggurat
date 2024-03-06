@@ -21,7 +21,6 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
 
     public async Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next)
     {
-
         if (await _storage.HasProcessedAsync(message))
         {
             _logger.LogMessageExists(message);
