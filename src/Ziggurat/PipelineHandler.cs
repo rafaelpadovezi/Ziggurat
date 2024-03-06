@@ -16,10 +16,6 @@ internal class PipelineHandler<TMessage> : IConsumerService<TMessage>
     {
         _serviceProvider = serviceProvider;
         _service = service;
-
-        var deleteHistoryMiddleware = _serviceProvider.GetService<IDeleteHistoryMiddleware>();
-        deleteHistoryMiddleware.DeleteHistoryMessagesOltherThan(30);
-
     }
 
     public async Task ProcessMessageAsync(TMessage message)
@@ -41,8 +37,4 @@ public delegate Task ConsumerServiceDelegate<in TMessage>(TMessage message)
 public interface IConsumerMiddleware<TMessage> where TMessage : IMessage
 {
     Task OnExecutingAsync(TMessage message, ConsumerServiceDelegate<TMessage> next);
-}
-public interface IDeleteHistoryMiddleware
-{
-    Task DeleteHistoryMessagesOltherThan(int days);
 }

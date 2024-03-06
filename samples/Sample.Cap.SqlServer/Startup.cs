@@ -47,7 +47,6 @@ public class Startup
 
         services
             .AddScoped<OrderCreatedConsumer>()
-            .AddZigguratCleaner(options )
             .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
                 options =>
                 {
@@ -67,5 +66,7 @@ public class Startup
             endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Example API using CAP"); });
             endpoints.MapControllers();
         });
+
+        app.UseZigguratCleaner(30);
     }
 }

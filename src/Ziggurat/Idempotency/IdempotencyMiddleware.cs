@@ -38,13 +38,5 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
             // was already processed and should do nothing
             _logger.LogMessageExists(message);
         }
-    }
-
-    public async Task DeleteMessageHistory(int deleteOltherThanDays)
-    {
-        var deleteCount = await _storage.DeleteMessagesHistoryOltherThanAsync(deleteOltherThanDays);
-        
-        _logger.LogDeleteOlderMessages(deleteCount);
-
-    }
+    }   
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Ziggurat.Idempotency;
 
@@ -10,9 +11,11 @@ public class EntityFrameworkStorage<TContext> : IStorage
 {
     private const int SqlServerViolationConstraintErrorCode = 2627;
     private readonly DbSet<MessageTracking> _messages;
+    private readonly TContext _context;
 
     public EntityFrameworkStorage(TContext context)
     {
+        _context = context;
         CheckIfDbSetExists(context);
 
         _messages = context.Set<MessageTracking>();
@@ -62,6 +65,8 @@ public class EntityFrameworkStorage<TContext> : IStorage
         _messages.RemoveRange(messagesToDelete);
 
         var count = messagesToDelete != null ? messagesToDelete.Count : 0;
+
+        await _context.SaveChangesAsync();
 
         return count;
     }
