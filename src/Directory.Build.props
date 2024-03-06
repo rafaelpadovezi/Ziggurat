@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <VersionPrefix>7.0.1</VersionPrefix>
+        <VersionPrefix>7.0.2</VersionPrefix>
         <Authors>Rafael Miranda</Authors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

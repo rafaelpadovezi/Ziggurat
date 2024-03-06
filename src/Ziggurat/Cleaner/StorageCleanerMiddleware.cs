@@ -14,13 +14,17 @@ namespace Ziggurat.Cleaner
         private ILogger<StorageCleanerMiddleware> _logger;
         private IStorage _storage;
         private readonly int _deleteOltherThanDays;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="next">the Middleware next default Microsoft implemntation</param>
+        /// <param name="deleteOltherThanDays">The number of days max history allowed so that cleans older than those</param>
         public StorageCleanerMiddleware(RequestDelegate next, int deleteOltherThanDays)
         {
             _deleteOltherThanDays= deleteOltherThanDays;
             _next = next;
         }
-
-
 
         public async Task InvokeAsync(
             HttpContext context,
