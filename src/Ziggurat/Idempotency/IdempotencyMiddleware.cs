@@ -30,7 +30,7 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
 
         try
         {
-            await next(message);           
+            await next(message);
         }
         catch (Exception ex) when (_storage.IsMessageExistsError(ex))
         {
@@ -38,5 +38,5 @@ internal class IdempotencyMiddleware<TMessage> : IConsumerMiddleware<TMessage>
             // was already processed and should do nothing
             _logger.LogMessageExists(message);
         }
-    }   
+    }
 }
