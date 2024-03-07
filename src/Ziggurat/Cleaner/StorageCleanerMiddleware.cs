@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using Ziggurat.Idempotency;
@@ -22,7 +20,7 @@ namespace Ziggurat.Cleaner
         /// <param name="deleteOltherThanDays">The number of days max history allowed so that cleans older than those</param>
         public StorageCleanerMiddleware(RequestDelegate next, int deleteOltherThanDays)
         {
-            _deleteOltherThanDays= deleteOltherThanDays;
+            _deleteOltherThanDays = deleteOltherThanDays;
             _next = next;
         }
 
@@ -33,8 +31,17 @@ namespace Ziggurat.Cleaner
         {
             _logger = logger;
             _storage = storage;
-            _logger.LogInformation("Set to clean older than {deleteOltherThanDays} days.", _deleteOltherThanDays);
-            await DeleteMessageHistory(_deleteOltherThanDays);
+
+            //this avoids muiltiple calls on middleeware since the controller "/"
+            //and subsquent search for favicon locations is passed automatically by .net core framework
+            //It can be catched with below log if needeed
+            //_logger.LogWarning("CONTEXT: {path}", context.Request.Path.Value);
+            if (context != null && context.Request != null && !context.Request.Path.Value.Contains("favicon"))
+            {
+                _logger.LogInformation("Set to clean older than {deleteOltherThanDays} days.", _deleteOltherThanDays);
+                await DeleteMessageHistory(_deleteOltherThanDays);
+            }
+
             await _next(context);
         }
 

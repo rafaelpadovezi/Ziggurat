@@ -178,7 +178,6 @@ public class EntityFrameworkStorageTests : TestFixture
     public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldREturnO()
     {
         // Arrange
-
         var dbRealContext = new TestDbContext();
         var storageWithRealDbContext = new EntityFrameworkStorage<TestDbContext>(dbRealContext);
 
