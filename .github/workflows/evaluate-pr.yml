@@ -8,20 +8,33 @@ on:
       - 'src/**'
       - 'tests/**'
       - '*.sln'
+      - '.github/workflows/**'
 
 jobs:
-  build-n-publish:
+  evaluate-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Install dotnet-sonarscanner
         run: |
           dotnet tool install --global dotnet-sonarscanner
       - name: Build the project, run all tests and publish to SonarCloud
+        if: github.event.pull_request.head.repo.full_name == github.repository
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker-compose up -d mongoclustersetup sqlserver
           ./scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
+      - name: Build the project and run all tests
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          docker-compose up -d mongoclustersetup sqlserver
+          dotnet build
+          ./scripts/start-tests.sh

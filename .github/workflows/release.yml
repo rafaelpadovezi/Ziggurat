@@ -1,0 +1,23 @@
+﻿name: Release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate package
+        run: |
+          dotnet pack -c Release -o out
+          - name: Push nuget
+            run: |
+              dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SERVER }}

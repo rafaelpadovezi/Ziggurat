@@ -1,4 +1,4 @@
-name: Build and publish
+name: CI
 
 on:
   push:
@@ -10,11 +10,11 @@ on:
       - '*.sln'
 
 jobs:
-  build-n-publish:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           # Shallow clones should be disabled for a better relevancy of analysis
           fetch-depth: 0
@@ -28,9 +28,3 @@ jobs:
         run: |
           docker-compose up -d mongoclustersetup sqlserver
           ./scripts/start-sonarcloud.sh ${{ secrets.SONAR_TOKEN }} ${{ github.sha }}
-      - name: Generate package
-        run: |
-          dotnet pack -c Release -o out
-      - name: Push nuget
-        run: |
-          dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SERVER }} --skip-duplicate
