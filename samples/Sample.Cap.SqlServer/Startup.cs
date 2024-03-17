@@ -12,6 +12,7 @@ using Sample.Cap.SqlServer.Infrastructure;
 using Sample.Cap.SqlServer.Infrastructure.Middlewares;
 using Ziggurat;
 using Ziggurat.CapAdapter;
+using Ziggurat.Logging;
 
 namespace Sample.Cap.SqlServer;
 
@@ -50,8 +51,9 @@ public class Startup
             .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
                 options =>
                 {
-                    options.Use<LoggingMiddleware<OrderCreatedMessage>>();
+                    options.Use<OrderCreatedValidationMiddleware>();
                     options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
+                    options.Use<LoggingMiddleware<OrderCreatedMessage>>();
                 });
     }
 
