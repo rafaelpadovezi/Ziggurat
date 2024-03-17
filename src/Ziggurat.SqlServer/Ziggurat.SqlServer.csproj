@@ -1,21 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-		<LangVersion>10.0</LangVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<NoWarn>1591</NoWarn>
-	</PropertyGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
-	</ItemGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.3" />
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 	</ItemGroup>
 	
 	<ItemGroup>

@@ -32,7 +32,10 @@ public class LoggingMiddleware<TMessage> : IConsumerMiddleware<TMessage>
         catch (Exception ex)
         {
             stopWatch.Stop();
-            _logger.LogError(ex, "Executed {MessageGroup}:{MessageId} with error in {Elapsed} ms.");
+            _logger.LogError(ex, "Executed {MessageGroup}:{MessageId} with error in {Elapsed} ms.",
+                message.MessageGroup,
+                message.MessageId,
+                stopWatch.Elapsed.TotalMilliseconds);
             throw;
         }
     }
