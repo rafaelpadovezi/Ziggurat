@@ -1,12 +1,11 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-        <LangVersion>10.0</LangVersion>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>11.0</LangVersion>
         <NoWarn>1591</NoWarn>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup>
-        <VersionPrefix>7.0.1</VersionPrefix>
         <Authors>Rafael Miranda</Authors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

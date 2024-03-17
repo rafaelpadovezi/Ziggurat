@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-        <LangVersion>10.0</LangVersion>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>11.0</LangVersion>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 </Project>
