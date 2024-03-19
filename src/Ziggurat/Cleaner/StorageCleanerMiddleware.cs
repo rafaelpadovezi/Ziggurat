@@ -12,15 +12,18 @@ namespace Ziggurat.Cleaner
         private ILogger<StorageCleanerMiddleware> _logger;
         private IStorage _storage;
         private readonly int _deleteOltherThanDays;
+        private readonly int _maxMessagesToDelete;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="next">the Middleware next default Microsoft implemntation</param>
         /// <param name="deleteOltherThanDays">The number of days max history allowed so that cleans older than those</param>
-        public StorageCleanerMiddleware(RequestDelegate next, int deleteOltherThanDays)
+        /// <param name="maxMessagesToDelete">The max number of messages to delete in history in case needed to avoid time consuming task if not specified will take 0 meaning no constrain</param>
+        public StorageCleanerMiddleware(RequestDelegate next, int deleteOltherThanDays, int maxMessagesToDelete = 0)
         {
             _deleteOltherThanDays = deleteOltherThanDays;
+            _maxMessagesToDelete = maxMessagesToDelete;
             _next = next;
         }
 
@@ -39,17 +42,17 @@ namespace Ziggurat.Cleaner
             if (context != null && context.Request != null && !context.Request.Path.Value.Contains("favicon"))
             {
                 _logger.LogInformation("Set to clean older than {deleteOltherThanDays} days.", _deleteOltherThanDays);
-                await DeleteMessageHistory(_deleteOltherThanDays);
+                await DeleteMessageHistory(_deleteOltherThanDays, _maxMessagesToDelete);
             }
 
             await _next(context);
         }
 
-        protected async Task DeleteMessageHistory(int deleteOltherThanDays)
+        protected async Task DeleteMessageHistory(int deleteOltherThanDays, int maxMessagesToDelete)
         {
             try
             {
-                var deleteCount = await _storage.DeleteMessagesHistoryOltherThanAsync(deleteOltherThanDays);
+                var deleteCount = await _storage.DeleteMessagesHistoryOltherThanAsync(deleteOltherThanDays, maxMessagesToDelete);
                 _logger.LogInformation("Deleted {deleteCount} messages older than {olderThanDays} days.", deleteCount, deleteOltherThanDays);
             }
             catch (Exception ex)
