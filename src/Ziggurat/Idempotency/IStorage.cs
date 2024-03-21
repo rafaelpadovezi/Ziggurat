@@ -8,4 +8,6 @@ public interface IStorage
     bool IsMessageExistsError(Exception ex);
 
     Task<bool> HasProcessedAsync(IMessage message);
+
+    Task<int> DeleteMessagesHistoryOltherThanAsync(int days);
 }

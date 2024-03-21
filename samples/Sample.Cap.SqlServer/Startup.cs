@@ -66,5 +66,7 @@ public class Startup
             endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Example API using CAP"); });
             endpoints.MapControllers();
         });
+
+        app.UseZigguratCleaner(30);
     }
 }

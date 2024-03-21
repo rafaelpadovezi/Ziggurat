@@ -13,9 +13,10 @@ public static class MiddlewareOptionsExtensions
     /// Entity Framework dependencies.
     /// </summary>
     /// <param name="options"></param>
+    /// <param name="deleteHistoryMessagesFromDays">numer of days to exclude older messages from tracking table ( 0 or negative value will not exclude )</param>
     /// <typeparam name="TMessage">Type of the message of the consumer</typeparam>
     /// <typeparam name="TContext">Type of the DbContext</typeparam>
-    public static void UseEntityFrameworkIdempotency<TMessage, TContext>(this MiddlewareOptions<TMessage> options)
+    public static void UseEntityFrameworkIdempotency<TMessage, TContext>(this MiddlewareOptions<TMessage> options, int deleteHistoryMessagesFromDays = 0)
         where TContext : DbContext
         where TMessage : IMessage
     {
@@ -27,5 +28,7 @@ public static class MiddlewareOptionsExtensions
         }
 
         options.Extensions.Add(IdempotencySetupAction);
+        
     }
+   
 }

@@ -165,6 +165,13 @@ Also, it's required to register the middleware on the dependency injection confi
     });
 ```
 
+From version 7.0.2, there is a new simple Middleware that tries to run at startup of the app a cleaner for the storage of Messaging control (Mongo or SQLServer).
+It has a simple parameter that optionally can be passed (if not defined will default to 15 days), to clean stored messages, older than previous defined days.
+
+```c#
+app.UseZigguratCleaner(xx); ///xx number of days to clean older than history stored
+```
+
 Important to note that multiple middlewares can be registered to the same consumer. They are executed following the order of the registration.
 
 You can look at the samples folder to see more examples of usage.

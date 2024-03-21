@@ -1,5 +1,7 @@
 ﻿using System;
 using Ziggurat;
+using Ziggurat.Cleaner;
+using Microsoft.AspNetCore.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,7 +22,6 @@ public static class ServiceCollectionExtensions
                     t.GetRequiredService<TService>())
             );
 
-
         var options = new MiddlewareOptions<TMessage>();
         setupAction(options);
 
@@ -29,4 +30,13 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Extension Method for implementing Middleware to clean Messages history
+    /// </summary>
+    /// <param name="app">the IApplicationBuilder</param>
+    /// <param name="deleteOltherThanDays">The number of days max history allowed so that cleans older than those, deafults to 15 days</param>
+    /// <returns>Returns the Middleware implementation</returns>
+    public static IApplicationBuilder UseZigguratCleaner(this IApplicationBuilder app, int deleteOltherThanDays = 15) =>
+        app.UseMiddleware<StorageCleanerMiddleware>(deleteOltherThanDays);
 }
