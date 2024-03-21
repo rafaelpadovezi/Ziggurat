@@ -17,7 +17,7 @@ dotnet ef database update --project samples/Sample.Cap.SqlServer/ --context Exam
 Call the API
 
 ```
-curl --location --request POST 'https://localhost:5001/order' \
+curl --location --request POST 'http://localhost:5001/order' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "Number": "123"

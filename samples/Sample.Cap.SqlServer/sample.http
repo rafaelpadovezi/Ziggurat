@@ -1,0 +1,6 @@
+﻿POST http://localhost:5000/order
+Content-Type: application/json
+
+{
+  "Number": "123"
+}
