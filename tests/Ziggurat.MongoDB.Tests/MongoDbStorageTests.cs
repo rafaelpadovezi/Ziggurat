@@ -152,7 +152,7 @@ public class MongoDbStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldDeleteOlder()
+    public async Task IsDeleteHistoryMessages_OlderThan30Days_ShouldUpdateCollection()
     {
         // Arrange
         var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
@@ -180,9 +180,10 @@ public class MongoDbStorageTests : TestFixture
         }
 
         // Act       
-        await _storage.DeleteMessagesHistoryOlderThanAsync(30);
+        var count = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 0);
 
         // Assert
+        count.Should().Be(3);
         for (var i = 1; i < 7; i++)
         {
             var filter = Builders<MessageTracking>.Filter
@@ -192,6 +193,54 @@ public class MongoDbStorageTests : TestFixture
             var finder = await testCollection.FindAsync(filter);
             var message = finder.FirstOrDefault();
             if (i < 4)
+                message.Should().BeNull();
+            else
+                message.Should().NotBeNull();
+        }
+    }
+
+    [Fact]
+    public async Task IsDeleteHistoryMessages_OlderThan30DaysMax2_ShouldUpdateCollection()
+    {
+        // Arrange
+        var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
+
+        var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
+
+        var messages = new List<MessageTracking>() { tracking1, tracking2, tracking3, tracking4, tracking5, tracking6 };
+
+        await testCollection.InsertManyAsync(messages);
+
+        //update first 3 with older dates
+        for (var i = 1; i < 4; i++)
+        {
+            var filter = Builders<MessageTracking>.Filter
+                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
+            var update = Builders<MessageTracking>.Update
+                .Set(x => x.DateTime, DateTime.Now.AddDays(-50));
+
+            await testCollection.UpdateOneAsync(filter, update);
+        }
+
+        // Act       
+        var count = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 2);
+
+        // Assert
+        count.Should().Be(2);
+        for (var i = 1; i < 7; i++)
+        {
+            var filter = Builders<MessageTracking>.Filter
+                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
+
+
+            var finder = await testCollection.FindAsync(filter);
+            var message = finder.FirstOrDefault();
+            if (i < 3)
                 message.Should().BeNull();
             else
                 message.Should().NotBeNull();

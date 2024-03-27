@@ -175,7 +175,7 @@ public class EntityFrameworkStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldUpdateDatabase()
+    public async Task IsDeleteHistoryMessages_OlderThan30Days_ShouldUpdateDatabase()
     {
         // Arrange
         var dbRealContext = new TestDbContext();
@@ -212,7 +212,7 @@ public class EntityFrameworkStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30DaysMax2_ShouldUpdateDatabase()
+    public async Task IsDeleteHistoryMessages_OlderThan30DaysMax2_ShouldUpdateDatabase()
     {
         // Arrange
         var dbRealContext = new TestDbContext();

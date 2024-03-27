@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Ziggurat.Idempotency;
 
@@ -43,11 +44,27 @@ public class MongoDbStorage : IStorage
             .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
             .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
         var builder = Builders<MessageTracking>.Filter;
-        var filter = builder.Lte(x => x.DateTime, DateTime.Now.AddDays(-days));
 
-        var res = await collection.DeleteManyAsync(filter);
+        if (maxMessagesToDelete > 0)
+        {
+            var filterGet = builder.Lte(x => x.DateTime, DateTime.Now.AddDays(-days));
+            var resGet = await collection.FindAsync(filterGet);
 
-        return (int)res.DeletedCount;
+            var listAsync = await resGet.ToListAsync();
+            var idList = listAsync.Take(maxMessagesToDelete).Select(x => x.MessageId).ToList();
+
+            var filter = builder.In(x => x.MessageId, idList);
+            var res = await collection.DeleteManyAsync(filter);
+
+            return (int)res.DeletedCount;
+        }
+        else
+        {
+            var filter = builder.Lte(x => x.DateTime, DateTime.Now.AddDays(-days));
+            var res = await collection.DeleteManyAsync(filter);
+
+            return (int)res.DeletedCount;
+        }
     }
 }
 
