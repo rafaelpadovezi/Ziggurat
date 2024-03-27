@@ -52,7 +52,7 @@ namespace Ziggurat.Cleaner
         {
             try
             {
-                var deleteCount = await _storage.DeleteMessagesHistoryOltherThanAsync(deleteOltherThanDays, maxMessagesToDelete);
+                var deleteCount = await _storage.DeleteMessagesHistoryOlderThanAsync(deleteOltherThanDays, maxMessagesToDelete);
                 _logger.LogInformation("Deleted {deleteCount} messages older than {olderThanDays} days.", deleteCount, deleteOltherThanDays);
             }
             catch (Exception ex)

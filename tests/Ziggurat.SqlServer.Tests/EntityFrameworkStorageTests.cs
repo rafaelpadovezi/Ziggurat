@@ -175,7 +175,7 @@ public class EntityFrameworkStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldREturnO()
+    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldUpdateDatabase()
     {
         // Arrange
         var dbRealContext = new TestDbContext();
@@ -194,11 +194,12 @@ public class EntityFrameworkStorageTests : TestFixture
         await dbRealContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
 
         // Act
-        await storageWithRealDbContext.DeleteMessagesHistoryOlderThanAsync(30);
+        var count = await storageWithRealDbContext.DeleteMessagesHistoryOlderThanAsync(30, 0);
         await dbRealContext.SaveChangesAsync();
 
         // Assert
         dbRealContext.Messages.Count().Should().Be(3);
+        count.Should().Be(3);
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108601").Should().NotBeNull();
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108602").Should().NotBeNull();
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108603").Should().NotBeNull();
@@ -206,6 +207,36 @@ public class EntityFrameworkStorageTests : TestFixture
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108604").Should().BeEmpty();
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108605").Should().BeEmpty();
         dbRealContext.Messages.Where(m => m.Id == "1436814771495108606").Should().BeEmpty();
+
+        await dbRealContext.Database.ExecuteSqlAsync($"TRUNCATE TABLE MessageTracking");
+    }
+
+    [Fact]
+    public async Task IsDeleteHistoryMessages_OltherThan30DaysMax2_ShouldUpdateDatabase()
+    {
+        // Arrange
+        var dbRealContext = new TestDbContext();
+        var storageWithRealDbContext = new EntityFrameworkStorage<TestDbContext>(dbRealContext);
+
+        var tracking1 = new MessageTracking("1436814771495108611", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108612", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108613", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108614", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108615", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108616", "test.queue");
+        var listTrackings = new List<MessageTracking> { tracking1, tracking2, tracking3, tracking4, tracking5, tracking6 };
+        dbRealContext.AddRange(listTrackings);
+        await dbRealContext.SaveChangesAsync();
+
+        await dbRealContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108614','1436814771495108615','14368147714951086016')");
+
+        // Act
+        var count = await storageWithRealDbContext.DeleteMessagesHistoryOlderThanAsync(30, 2);
+        await dbRealContext.SaveChangesAsync();
+
+        // Assert
+        dbRealContext.Messages.Count().Should().Be(4);
+        count.Should().Be(2);
 
         await dbRealContext.Database.ExecuteSqlAsync($"TRUNCATE TABLE MessageTracking");
     }
