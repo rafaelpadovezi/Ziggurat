@@ -45,7 +45,7 @@ public class MongoDbStorage : IStorage
         var builder = Builders<MessageTracking>.Filter;
         var filter = builder.Lte(x => x.DateTime, DateTime.Now.AddDays(-days));
 
-         var res = await collection.DeleteManyAsync(filter);
+        var res = await collection.DeleteManyAsync(filter);
 
         return (int)res.DeletedCount;
     }
