@@ -9,5 +9,5 @@ public interface IStorage
 
     Task<bool> HasProcessedAsync(IMessage message);
 
-    Task<int> DeleteMessagesHistoryOltherThanAsync(int days, int maxMessagesToDelete = 0);
+    Task<int> DeleteMessagesHistoryOlderThanAsync(int days, int maxMessagesToDelete = 0);
 }
