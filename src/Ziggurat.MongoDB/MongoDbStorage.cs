@@ -37,7 +37,7 @@ public class MongoDbStorage : IStorage
         return await collection.CountDocumentsAsync(filter) > 0;
     }
 
-    public async Task<int> DeleteMessagesHistoryOltherThanAsync(int days, int maxMessagesToDelete = 0)
+    public async Task<int> DeleteMessagesHistoryOlderThanAsync(int days, int maxMessagesToDelete = 0)
     {
         var collection = _client
             .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)

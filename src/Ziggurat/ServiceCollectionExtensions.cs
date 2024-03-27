@@ -35,9 +35,9 @@ public static class ServiceCollectionExtensions
     /// Extension Method for implementing Middleware to clean Messages history
     /// </summary>
     /// <param name="app">the IApplicationBuilder</param>
-    /// <param name="deleteOltherThanDays">The number of days max history allowed so that cleans older than those, deafults to 15 days</param>
+    /// <param name="deleteOlderThanDays ">The number of days max history allowed so that cleans older than those, deafults to 15 days</param>
     /// <param name="maxMessagesToDelete">The max number of messages to delete in history in case needed to avoid time consuming task if not specified will take 0 meaning no constrain</param>
     /// <returns>Returns the Middleware implementation</returns>
-    public static IApplicationBuilder UseZigguratCleaner(this IApplicationBuilder app, int deleteOltherThanDays = 15, int maxMessagesToDelete = 0) =>
-        app.UseMiddleware<StorageCleanerMiddleware>(deleteOltherThanDays, maxMessagesToDelete);
+    public static IApplicationBuilder UseZigguratCleaner(this IApplicationBuilder app, int deleteOlderThanDays = 15, int maxMessagesToDelete = 0) =>
+        app.UseMiddleware<StorageCleanerMiddleware>(deleteOlderThanDays, maxMessagesToDelete);
 }
