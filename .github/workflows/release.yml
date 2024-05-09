@@ -4,11 +4,13 @@ on:
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
+
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-n-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,7 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Generate package
         run: |
-          dotnet pack -c Release -o out
-          - name: Push nuget
-            run: |
-              dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SERVER }}
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          dotnet pack -c Release -o out -p:PackageVersion=$TAG_NAME
+      - name: Push nuget
+        run: |
+          dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SERVER }}
