@@ -39,6 +39,4 @@ app.MapPost("/", async (IMongoClient client, ICapPublisher capBus) =>
     return Results.Ok();
 });
 
-app.UseZigguratCleaner(10);
-
 app.Run();

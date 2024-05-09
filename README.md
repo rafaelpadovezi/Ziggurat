@@ -37,6 +37,8 @@ Ziggurat has support to:
 
 ## Usage
 
+Ziggurat works with middlewares. Registering middlewares adds functionality to the message consumer. Important to note that multiple middlewares can be registered to the same consumer. They are executed following the order of the registration.
+
 ### SQL Server with Entity Framework
 
 Ziggurat integrates with the application [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/) to track the processed messages and ensures that each message is processed only once. Also, the EF Core migrations are used to create the message tracking table with the correct constraints. If you are not using migration in your project the table must be created manually.
@@ -136,7 +138,18 @@ public class MyMessageConsumerService : IConsumerService<MyMessage>
     }
 }
 ```
+### Logging middleware
 
+Since version 8.0.0, Ziggurat has a built-in middleware to log the message processing. It's possible to use it by calling the method `UseLoggingMiddleware`:
+
+```c#
+services
+    .AddConsumerService<MyMessage, MyConsumerService>(
+        options =>
+        {
+            options.UseLoggingMiddleware<MyMessage>();
+        });
+```
 
 ### Custom middleware
 
@@ -163,13 +176,6 @@ Also, it's required to register the middleware on the dependency injection confi
     {
         options.Use<LoggingMiddleware<MyMessage>>();
     });
-```
-
-From version 7.0.2, there is a new simple Middleware that tries to run at startup of the app a cleaner for the storage of Messaging control (Mongo or SQLServer).
-It has a simple parameter that optionally can be passed (if not defined will default to 15 days), to clean stored messages, older than previous defined days.
-
-```c#
-app.UseZigguratCleaner(xx); ///xx number of days to clean older than history stored
 ```
 
 Important to note that multiple middlewares can be registered to the same consumer. They are executed following the order of the registration.

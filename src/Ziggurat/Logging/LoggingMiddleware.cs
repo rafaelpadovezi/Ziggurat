@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Ziggurat;
 
-namespace Sample.Cap.SqlServer.Infrastructure.Middlewares;
+namespace Ziggurat.Logging;
 
 public class LoggingMiddleware<TMessage> : IConsumerMiddleware<TMessage>
     where TMessage : IMessage
@@ -24,7 +21,7 @@ public class LoggingMiddleware<TMessage> : IConsumerMiddleware<TMessage>
         {
             await next(message);
             stopWatch.Stop();
-            _logger.LogInformation("Executed {MessageGroup}:{MessageId} in {Elapsed} ms.",
+            _logger.LogInformation("Executed {MessageGroup}:{MessageId} in {Elapsed:000} ms.",
                 message.MessageGroup,
                 message.MessageId,
                 stopWatch.Elapsed.TotalMilliseconds);
@@ -32,7 +29,10 @@ public class LoggingMiddleware<TMessage> : IConsumerMiddleware<TMessage>
         catch (Exception ex)
         {
             stopWatch.Stop();
-            _logger.LogError(ex, "Executed {MessageGroup}:{MessageId} with error in {Elapsed} ms.");
+            _logger.LogError(ex, "Executed {MessageGroup}:{MessageId} with error in {Elapsed:000} ms.",
+                message.MessageGroup,
+                message.MessageId,
+                stopWatch.Elapsed.TotalMilliseconds);
             throw;
         }
     }
