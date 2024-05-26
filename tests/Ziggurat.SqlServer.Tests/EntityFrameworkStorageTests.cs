@@ -194,7 +194,7 @@ public class EntityFrameworkStorageTests : TestFixture
         await dbRealContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
 
         // Act
-        await storageWithRealDbContext.DeleteMessagesHistoryOltherThanAsync(30);
+        await storageWithRealDbContext.DeleteMessagesHistoryOlderThanAsync(30);
         await dbRealContext.SaveChangesAsync();
 
         // Assert

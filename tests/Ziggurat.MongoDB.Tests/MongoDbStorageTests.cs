@@ -180,7 +180,7 @@ public class MongoDbStorageTests : TestFixture
         }
 
         // Act       
-        await _storage.DeleteMessagesHistoryOltherThanAsync(30);
+        await _storage.DeleteMessagesHistoryOlderThanAsync(30);
 
         // Assert
         for (var i = 1; i < 7; i++)
