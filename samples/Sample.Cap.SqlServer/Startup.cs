@@ -52,8 +52,8 @@ public class Startup
                 options =>
                 {
                     options.Use<OrderCreatedValidationMiddleware>();
-                    options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
                     options.Use<LoggingMiddleware<OrderCreatedMessage>>();
+                    options.UseEntityFrameworkIdempotency<OrderCreatedMessage, ExampleDbContext>();
                 });
     }
 
