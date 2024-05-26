@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.SqlServer.Tests.Support;
@@ -175,38 +173,95 @@ public class EntityFrameworkStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldREturnO()
+    public async Task DeleteMessagesHistoryOlderThanAsync_OldThan30Days_ShouldReturn3()
     {
         // Arrange
-        var dbRealContext = new TestDbContext();
-        var storageWithRealDbContext = new EntityFrameworkStorage<TestDbContext>(dbRealContext);
-
         var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
         var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
         var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
         var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
         var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
         var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
-        var listTrackings = new List<MessageTracking> { tracking1, tracking2, tracking3, tracking4, tracking5, tracking6 };
-        dbRealContext.AddRange(listTrackings);
-        await dbRealContext.SaveChangesAsync();
+        Context.AddRange(tracking1, tracking2, tracking3, tracking4, tracking5, tracking6);
+        await Context.SaveChangesAsync();
 
-        await dbRealContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
+        // update timestamp of messages to be deleted
+        await Context.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
 
         // Act
-        await storageWithRealDbContext.DeleteMessagesHistoryOltherThanAsync(30);
-        await dbRealContext.SaveChangesAsync();
+         var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 100, default);
 
         // Assert
-        dbRealContext.Messages.Count().Should().Be(3);
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108601").Should().NotBeNull();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108602").Should().NotBeNull();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108603").Should().NotBeNull();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108601").Should().NotBeNull();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108604").Should().BeEmpty();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108605").Should().BeEmpty();
-        dbRealContext.Messages.Where(m => m.Id == "1436814771495108606").Should().BeEmpty();
+        result.Should().Be(3);
+        Context.Messages.Count().Should().Be(3);
+        var dbMessages = await Context.Messages.ToListAsync();
+        dbMessages.Should().SatisfyRespectively(
+            x => x.Id.Should().Be("1436814771495108601"),
+            x => x.Id.Should().Be("1436814771495108602"),
+            x => x.Id.Should().Be("1436814771495108603"));
+    }
 
-        await dbRealContext.Database.ExecuteSqlAsync($"TRUNCATE TABLE MessageTracking");
+    [Fact]
+    public async Task DeleteMessagesHistoryOlderThanAsync_WithBatchSize3_ShouldReturn3()
+    {
+        // Arrange
+        var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
+        Context.AddRange(tracking1, tracking2, tracking3, tracking4, tracking5, tracking6);
+        await Context.SaveChangesAsync();
+
+        // update timestamp of messages to be deleted
+        await Context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108601','1436814771495108602','1436814771495108603', '1436814771495108604','1436814771495108605','1436814771495108606')");
+
+        // Act
+        var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 3, default);
+
+        // Assert
+        result.Should().Be(3);
+        Context.Messages.Count().Should().Be(3);
+    }
+
+    [Fact]
+    public async Task DeleteMessagesHistoryOlderThanAsync_WhenCalledAtSameTime_ShouldDeleteDifferentRecords()
+    {
+        // Arrange
+        // create a new DB context to avoid the test transaction
+        await using var dbContext = new TestDbContext();
+        var tracking1 = new MessageTracking("1436814771495108601", "test.queue");
+        var tracking2 = new MessageTracking("1436814771495108602", "test.queue");
+        var tracking3 = new MessageTracking("1436814771495108603", "test.queue");
+        var tracking4 = new MessageTracking("1436814771495108604", "test.queue");
+        var tracking5 = new MessageTracking("1436814771495108605", "test.queue");
+        var tracking6 = new MessageTracking("1436814771495108606", "test.queue");
+        dbContext.AddRange(tracking1, tracking2, tracking3, tracking4, tracking5, tracking6);
+        await dbContext.SaveChangesAsync();
+
+        // update timestamp of messages to be deleted
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108601','1436814771495108602','1436814771495108603', '1436814771495108604','1436814771495108605','1436814771495108606')");
+
+        
+        // create two storages with different contexts to allow run async queries in parallel
+        await using var dbContext1 = new TestDbContext();
+        await using var dbContext2 = new TestDbContext();
+        var storage1 = new EntityFrameworkStorage<TestDbContext>(dbContext1);
+        var storage2 = new EntityFrameworkStorage<TestDbContext>(dbContext2);
+
+        // Act
+
+        var results = await Task.WhenAll(
+            storage1.DeleteMessagesHistoryOlderThanAsync(30, 3, default),
+            storage2.DeleteMessagesHistoryOlderThanAsync(30, 3, default)
+        );
+
+        // Assert
+        results.Should().BeEquivalentTo(new[] { 3, 3 });
+        var dbCount = await dbContext.Messages.AsNoTracking().CountAsync();
+        dbCount.Should().Be(0);
     }
 }

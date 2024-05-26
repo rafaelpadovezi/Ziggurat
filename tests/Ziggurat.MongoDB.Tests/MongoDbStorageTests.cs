@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.MongoDB.Tests.Support;
-using static MongoDB.Driver.WriteConcern;
 
 namespace Ziggurat.MongoDB.Tests;
 
@@ -142,6 +141,7 @@ public class MongoDbStorageTests : TestFixture
                 throw new Exception();
             }
         }
+        // ReSharper disable once EmptyGeneralCatchClause
         catch (Exception)
         {
         }
@@ -152,7 +152,7 @@ public class MongoDbStorageTests : TestFixture
     }
 
     [Fact]
-    public async Task IsDeleteHistoryMessages_OltherThan30Days_ShouldDeleteOlder()
+    public async Task IsDeleteHistoryMessages_OlderThan30Days_ShouldReturn3()
     {
         // Arrange
         var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
@@ -168,33 +168,45 @@ public class MongoDbStorageTests : TestFixture
 
         await testCollection.InsertManyAsync(messages);
 
-        //update first 3 with older dates
-        for (var i = 1; i < 4; i++)
-        {
-            var filter = Builders<MessageTracking>.Filter
-                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
-            var update = Builders<MessageTracking>.Update
-                .Set(x => x.DateTime, DateTime.Now.AddDays(-50));
+        await MarkDocumentAsOld(testCollection, "1436814771495108601_test.queue");
+        await MarkDocumentAsOld(testCollection, "1436814771495108602_test.queue");
+        await MarkDocumentAsOld(testCollection, "1436814771495108603_test.queue");
 
-            await testCollection.UpdateOneAsync(filter, update);
-        }
-
-        // Act       
-        await _storage.DeleteMessagesHistoryOltherThanAsync(30);
+        // Act
+        var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 1000 , default);
 
         // Assert
-        for (var i = 1; i < 7; i++)
-        {
-            var filter = Builders<MessageTracking>.Filter
-                .Eq(x => x.Id, $"143681477149510860{i}_test.queue");
-
-
-            var finder = await testCollection.FindAsync(filter);
-            var message = finder.FirstOrDefault();
-            if (i < 4)
-                message.Should().BeNull();
-            else
-                message.Should().NotBeNull();
-        }
+        result.Should().Be(3);
+        var remainingMessages = await testCollection.Find(_ => true).ToListAsync();
+        remainingMessages.Should().SatisfyRespectively(
+            x => x.Id.Should().Be("1436814771495108604_test.queue"),
+            x => x.Id.Should().Be("1436814771495108605_test.queue"),
+            x => x.Id.Should().Be("1436814771495108606_test.queue"));
+        await testCollection.DeleteManyAsync(_ => true);
     }
+
+    private static async Task MarkDocumentAsOld(IMongoCollection<MessageTracking> testCollection, string id)
+    {
+        var filter = Builders<MessageTracking>.Filter
+            .Eq(x => x.Id, id);
+        var update = Builders<MessageTracking>.Update
+            .Set(x => x.DateTime, DateTime.Now.AddDays(-50));
+
+        await testCollection.UpdateOneAsync(filter, update);
+    }
+    
+    [Fact]
+    public async Task InitializeAsync_WhenCalled_ShouldCreateIndex()
+    {
+        // Arrange
+        var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
+
+        // Act
+        await _storage.InitializeAsync(default);
+
+        // Assert
+        var indexes = await testCollection.Indexes.ListAsync();
+        var indexNames = await indexes.ToListAsync();
+        indexNames.Should().ContainSingle(x => x["name"].AsString == nameof(MessageTracking.DateTime));
+    } 
 }

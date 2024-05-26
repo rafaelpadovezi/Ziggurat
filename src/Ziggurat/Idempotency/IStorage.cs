@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Ziggurat.Idempotency;
+﻿namespace Ziggurat.Idempotency;
 
 public interface IStorage
 {
@@ -9,5 +6,7 @@ public interface IStorage
 
     Task<bool> HasProcessedAsync(IMessage message);
 
-    Task<int> DeleteMessagesHistoryOltherThanAsync(int days);
+    Task<int> DeleteMessagesHistoryOlderThanAsync(int days, int batchSize, CancellationToken cancellationToken);
+
+    Task InitializeAsync(CancellationToken stoppingToken);
 }
