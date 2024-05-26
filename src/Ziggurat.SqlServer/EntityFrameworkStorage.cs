@@ -56,18 +56,12 @@ public class EntityFrameworkStorage<TContext> : IStorage
                 "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
     }
 
-    public async Task<int> DeleteMessagesHistoryOltherThanAsync(int days)
+    public async Task<int> DeleteMessagesHistoryOlderThanAsync(int days)
     {
-        var messagesToDelete = await _messages
-           .Where(x => x.DateTime <= DateTime.Now.AddDays(-days))
-           .ToListAsync();
+        var deleted = await _messages
+            .Where(x => x.DateTime <= DateTime.Now.AddDays(-days))
+            .ExecuteDeleteAsync();
 
-        _messages.RemoveRange(messagesToDelete);
-
-        var count = messagesToDelete != null ? messagesToDelete.Count : 0;
-
-        await _context.SaveChangesAsync();
-
-        return count;
+        return deleted;
     }
 }

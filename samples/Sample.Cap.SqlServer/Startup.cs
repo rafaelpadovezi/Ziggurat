@@ -10,6 +10,7 @@ using Sample.Cap.SqlServer.Domain.Services;
 using Sample.Cap.SqlServer.Dtos;
 using Sample.Cap.SqlServer.Infrastructure;
 using Sample.Cap.SqlServer.Infrastructure.Middlewares;
+using System;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 using Ziggurat.Logging;
@@ -46,6 +47,11 @@ public class Startup
             })
             .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information
 
+        services.AddZigguratCleaner(options =>
+        {
+            options.CleaningInterval = new TimeSpan(0, 0, 10);
+            options.ExpireAfterInDays = 1;
+        });
         services
             .AddScoped<OrderCreatedConsumer>()
             .AddConsumerService<OrderCreatedMessage, OrderCreatedConsumerService>(
