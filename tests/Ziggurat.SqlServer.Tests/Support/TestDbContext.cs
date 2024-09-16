@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 
 namespace Ziggurat.SqlServer.Tests.Support;
@@ -11,8 +12,11 @@ public class TestDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__SqlServer");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            connectionString = "Server=localhost;Database=TestDb;User=sa;Password=Password1;TrustServerCertificate=True";
         optionsBuilder
-            .UseSqlServer("Server=localhost,5100;Initial Catalog=TestDb;User ID=sa;Password=Password1;;TrustServerCertificate=True")
+            .UseSqlServer(connectionString)
             .LogTo(message => Debug.WriteLine(message), LogLevel.Information)
             .EnableSensitiveDataLogging();
     }
