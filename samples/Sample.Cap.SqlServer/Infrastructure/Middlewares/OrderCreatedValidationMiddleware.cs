@@ -13,7 +13,7 @@ public class OrderCreatedValidationMiddleware : IConsumerMiddleware<OrderCreated
     {
         _logger = logger;
     }
-    
+
     public Task OnExecutingAsync(OrderCreatedMessage message, ConsumerServiceDelegate<OrderCreatedMessage> next)
     {
         if (string.IsNullOrWhiteSpace(message.Number))

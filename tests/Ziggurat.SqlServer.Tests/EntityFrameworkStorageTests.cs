@@ -189,7 +189,7 @@ public class EntityFrameworkStorageTests : TestFixture
         await Context.Database.ExecuteSqlInterpolatedAsync($"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108604','1436814771495108605','1436814771495108606')");
 
         // Act
-         var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 100, default);
+        var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 100, default);
 
         // Assert
         result.Should().Be(3);
@@ -245,7 +245,7 @@ public class EntityFrameworkStorageTests : TestFixture
         await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE MessageTracking SET DateTime = {DateTime.Now.AddDays(-60)} WHERE Id IN ('1436814771495108601','1436814771495108602','1436814771495108603', '1436814771495108604','1436814771495108605','1436814771495108606')");
 
-        
+
         // create two storages with different contexts to allow run async queries in parallel
         await using var dbContext1 = new TestDbContext();
         await using var dbContext2 = new TestDbContext();

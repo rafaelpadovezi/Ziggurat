@@ -173,7 +173,7 @@ public class MongoDbStorageTests : TestFixture
         await MarkDocumentAsOld(testCollection, "1436814771495108603_test.queue");
 
         // Act
-        var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 1000 , default);
+        var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 1000, default);
 
         // Assert
         result.Should().Be(3);
@@ -194,7 +194,7 @@ public class MongoDbStorageTests : TestFixture
 
         await testCollection.UpdateOneAsync(filter, update);
     }
-    
+
     [Fact]
     public async Task InitializeAsync_WhenCalled_ShouldCreateIndex()
     {
@@ -208,5 +208,5 @@ public class MongoDbStorageTests : TestFixture
         var indexes = await testCollection.Indexes.ListAsync();
         var indexNames = await indexes.ToListAsync();
         indexNames.Should().ContainSingle(x => x["name"].AsString == nameof(MessageTracking.DateTime));
-    } 
+    }
 }

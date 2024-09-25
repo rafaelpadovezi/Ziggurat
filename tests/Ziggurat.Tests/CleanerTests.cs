@@ -20,7 +20,8 @@ public class CleanerTests
         const int batchSize = 100;
         var cancellationTokenSource = new CancellationTokenSource();
         var services = new ServiceCollection();
-        services.AddZigguratCleaner(options => {
+        services.AddZigguratCleaner(options =>
+        {
             options.CleaningInterval = TimeSpan.FromSeconds(1);
             options.ExpireAfterInDays = optionsExpireAfterInDays;
             options.BatchSize = batchSize;
@@ -57,7 +58,8 @@ public class CleanerTests
         const int batchSize = 100;
         var cancellationTokenSource = new CancellationTokenSource();
         var services = new ServiceCollection();
-        services.AddZigguratCleaner(options => {
+        services.AddZigguratCleaner(options =>
+        {
             options.CleaningInterval = TimeSpan.FromSeconds(1);
             options.ExpireAfterInDays = optionsExpireAfterInDays;
             options.BatchSize = batchSize;
@@ -97,13 +99,14 @@ public class CleanerTests
         mockStorage.Verify();
         mockLogger.VerifyLog(x => x.LogInformation("Ziggurat cleaner background service is stopping."));
     }
-    
+
     [Fact]
     public void StartAsync_WhenStorageInitializeThrowError_ShouldStopBackgroundService()
     {
         // Arrange
         var services = new ServiceCollection();
-        services.AddZigguratCleaner(options => {
+        services.AddZigguratCleaner(options =>
+        {
             options.CleaningInterval = TimeSpan.FromSeconds(1);
             options.ExpireAfterInDays = 1;
         });
@@ -126,7 +129,8 @@ public class CleanerTests
         const int batchSize = 100;
         var cancellationTokenSource = new CancellationTokenSource();
         var services = new ServiceCollection();
-        services.AddZigguratCleaner(options => {
+        services.AddZigguratCleaner(options =>
+        {
             options.CleaningInterval = TimeSpan.FromSeconds(1);
             options.ExpireAfterInDays = optionsExpireAfterInDays;
             options.BatchSize = batchSize;
@@ -137,7 +141,7 @@ public class CleanerTests
         mockStorage
             .Setup(x => x.InitializeAsync(It.IsAny<CancellationToken>()))
             .Throws<InvalidOperationException>();
-        
+
         // Act
         services.AddScoped(_ => mockStorage.Object);
         var serviceProvider = services.BuildServiceProvider();
@@ -145,7 +149,7 @@ public class CleanerTests
         // Act
         var hostedService = serviceProvider.GetRequiredService<IHostedService>();
         await hostedService.StartAsync(cancellationTokenSource.Token);
-        
+
         // Assert
         mockLogger.VerifyLog(x => x.LogError("Could not initialize Ziggurat Cleaner properly. Cleaner is shutting up."));
     }

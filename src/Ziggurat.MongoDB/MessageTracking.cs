@@ -3,7 +3,7 @@
 public class MessageTracking
 {
     public MessageTracking()
-    {}
+    { }
 
     public MessageTracking(string id, string type)
     {

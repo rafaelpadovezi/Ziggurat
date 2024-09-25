@@ -14,10 +14,10 @@ public class ZigguratMongoDbOptionsTests
     {
         // Arrange
         ZigguratMongoDbOptions.MongoDatabaseName = input;
-        
+
         // Act
         Action action = () => _ = ZigguratMongoDbOptions.MongoDatabaseName;
-        
+
         // Assert
         action.Should()
             .Throw<InvalidOperationException>(

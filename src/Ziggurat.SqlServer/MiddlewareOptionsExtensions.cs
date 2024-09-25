@@ -28,7 +28,7 @@ public static class MiddlewareOptionsExtensions
         }
 
         options.Extensions.Add(IdempotencySetupAction);
-        
+
     }
-   
+
 }
