@@ -1,9 +1,10 @@
-﻿using System;
-
-namespace Ziggurat.MongoDB;
+﻿namespace Ziggurat.MongoDB;
 
 public class MessageTracking
 {
+    public MessageTracking()
+    {}
+
     public MessageTracking(string id, string type)
     {
         Id = CreateId(id, type);

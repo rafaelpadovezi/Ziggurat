@@ -21,6 +21,8 @@ builder.Services
     })
     .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information;
 
+builder.Services.AddZigguratCleaner();
+
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");

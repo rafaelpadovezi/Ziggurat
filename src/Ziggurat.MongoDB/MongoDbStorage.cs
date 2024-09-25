@@ -1,17 +1,17 @@
 ﻿using MongoDB.Driver;
-using System;
-using System.Threading.Tasks;
 using Ziggurat.Idempotency;
 
 namespace Ziggurat.MongoDB;
 
 public class MongoDbStorage : IStorage
 {
-    private readonly IMongoClient _client;
+    private readonly IMongoCollection<MessageTracking> _collection;
 
     public MongoDbStorage(IMongoClient client)
     {
-        _client = client;
+        _collection = client
+            .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
+            .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
     }
 
     public bool IsMessageExistsError(Exception ex)
@@ -28,26 +28,47 @@ public class MongoDbStorage : IStorage
 
     public async Task<bool> HasProcessedAsync(IMessage message)
     {
-        var collection = _client
-            .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
-            .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
         var builder = Builders<MessageTracking>.Filter;
         var filter = builder.Eq(x => x.Id, MessageTracking.CreateId(message.MessageId, message.MessageGroup));
 
-        return await collection.CountDocumentsAsync(filter) > 0;
+        return await _collection.CountDocumentsAsync(filter) > 0;
     }
 
-    public async Task<int> DeleteMessagesHistoryOltherThanAsync(int days)
+    public async Task<int> DeleteMessagesHistoryOlderThanAsync(int days, int batchSize, CancellationToken cancellationToken)
     {
-        var collection = _client
-            .GetDatabase(ZigguratMongoDbOptions.MongoDatabaseName)
-            .GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
         var builder = Builders<MessageTracking>.Filter;
         var filter = builder.Lte(x => x.DateTime, DateTime.Now.AddDays(-days));
 
-        var res = await collection.DeleteManyAsync(filter);
+        var res = await _collection.DeleteManyAsync(filter, cancellationToken);
 
         return (int)res.DeletedCount;
+    }
+
+    public async Task InitializeAsync(CancellationToken stoppingToken)
+    {
+        await TryCreateIndexAsync(stoppingToken);
+    }
+
+    private async Task TryCreateIndexAsync(CancellationToken cancellationToken)
+    {
+        const string indexName = nameof(MessageTracking.DateTime);
+        using (var cursor = await _collection.Indexes.ListAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var existingIndexes = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            var existingIndexNames = existingIndexes.Select(o => o["name"].AsString).ToArray();
+            if (existingIndexNames.Contains(indexName))
+                return;
+        }
+
+        var indexOptions = new CreateIndexOptions
+        {
+            Name = indexName,
+            Background = true,
+        };
+        var indexKeysDefinition = Builders<MessageTracking>.IndexKeys.Ascending(x => x.DateTime);
+        var dateTimeIndex = new CreateIndexModel<MessageTracking>(indexKeysDefinition, indexOptions);
+
+        await _collection.Indexes.CreateOneAsync(dateTimeIndex, null, cancellationToken);
     }
 }
 

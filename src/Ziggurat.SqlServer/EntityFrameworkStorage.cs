@@ -1,7 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Ziggurat.Idempotency;
 
 namespace Ziggurat.SqlServer;
@@ -9,9 +7,9 @@ namespace Ziggurat.SqlServer;
 public class EntityFrameworkStorage<TContext> : IStorage
     where TContext : DbContext
 {
+    private readonly TContext _context;
     private const int SqlServerViolationConstraintErrorCode = 2627;
     private readonly DbSet<MessageTracking> _messages;
-    private readonly TContext _context;
 
     public EntityFrameworkStorage(TContext context)
     {
@@ -56,18 +54,22 @@ public class EntityFrameworkStorage<TContext> : IStorage
                 "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
     }
 
-    public async Task<int> DeleteMessagesHistoryOltherThanAsync(int days)
+    public async Task<int> DeleteMessagesHistoryOlderThanAsync(int days, int batchSize,
+        CancellationToken cancellationToken)
     {
-        var messagesToDelete = await _messages
-           .Where(x => x.DateTime <= DateTime.Now.AddDays(-days))
-           .ToListAsync();
+        // get the table name from EF metadata
+        var tableName = _context.Model.FindEntityType(typeof(MessageTracking))!.GetTableName();
+        var tableSchema = _context.Model.FindEntityType(typeof(MessageTracking))!.GetSchema();
+        var tableFullName = tableSchema is null ? $"[{tableName}]" : $"[{tableSchema}].[{tableName}]";
 
-        _messages.RemoveRange(messagesToDelete);
+        var deleted = await _context.Database.ExecuteSqlRawAsync(
+            $"DELETE TOP ({{0}}) FROM {tableFullName} WITH (READPAST) WHERE DateTime < {{1}}",
+            new object[] { batchSize, DateTime.Now.AddDays(-days) },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
 
-        var count = messagesToDelete != null ? messagesToDelete.Count : 0;
-
-        await _context.SaveChangesAsync();
-
-        return count;
+        return deleted;
     }
+
+    public Task InitializeAsync(CancellationToken stoppingToken) => Task.CompletedTask;
 }

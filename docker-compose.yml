@@ -1,12 +1,16 @@
 services:
   sqlserver:
-    container_name: sql_server
     image: mcr.microsoft.com/mssql/server
     environment:
       SA_PASSWORD: Password1
       ACCEPT_EULA: "Y"
     ports:
-      - "5100:1433"
+      - "1433:1433"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Password1" -C -Q "SELECT 1" -b -o /dev/null
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
   rabbit:
     image: "rabbitmq:3-management"
@@ -15,51 +19,45 @@ services:
       - "15672:15672"
       - "5672:5672"
 
-  mongo1:
-    image: mongo:6
-    container_name: mongo1
+  mongo:
+    image: mongo:7
     ports:
-      - 27017:27017
+      - "27017:27017"
     restart: always
-    networks:
-      - mongoCluster
-    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo1
-
-  mongo2:
-    image: mongo:6
-    container_name: mongo2
-    ports:
-      - 27018:27017
-    networks:
-      - mongoCluster
-    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo2
-
-  mongo3:
-    image: mongo:6
-    container_name: mongo3
-    ports:
-      - 27019:27017
-    networks:
-      - mongoCluster
-    command: /usr/bin/mongod --replSet myReplicaSet --bind_ip localhost,mongo3
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    entrypoint:
+      [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "myReplicaSet" ]
 
   mongoclustersetup:
-    image: mongo:6
-    container_name: mongoclustersetup
+    image: mongo:7
     depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
-    networks:
-      - mongoCluster
-    entrypoint: [ "bash", "-c", "sleep 10 && mongosh --host mongo1:27017 --eval 'rs.initiate({
-      _id: \"myReplicaSet\",
-      members: [
-        {_id: 0, host: \"mongo1\"},
-        {_id: 1, host: \"mongo2\"},
-        {_id: 2, host: \"mongo3\"}
-      ]
-      })'" ]
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./scripts/mongo-init-replica-set.sh:/app/mongo-init-replica-set.sh
+    command:
+      - bash
+      - -c
+      - ./app/mongo-init-replica-set.sh
+    
+  tests:
+    working_dir: "/app"
+    image: "mcr.microsoft.com/dotnet/sdk:8.0"
+    command: "./scripts/start-tests.sh"
+    volumes:
+      - .:/app
+    environment:
+        - ConnectionStrings__SqlServer=Server=sqlserver;Database=TestDb;User=sa;Password=Password1;TrustServerCertificate=True
+        - ConnectionStrings__MongoDb=mongodb://mongo:27017
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      mongoclustersetup:
+        condition: service_completed_successfully
 
 networks:
   mongoCluster:

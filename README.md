@@ -182,6 +182,18 @@ Important to note that multiple middlewares can be registered to the same consum
 
 You can look at the samples folder to see more examples of usage.
 
+### Clean old message tracking records
+
+The library provides a method to clean old message tracking records. A background service can be added using the extension method `AddZigguratCleaner`:
+
+```c#
+services.AddZigguratCleaner(options => {
+    options.CleaningInterval = TimeSpan.FromMinutes(15);
+    options.ExpireAfterInDays = 7;
+    options.BatchSize = 100_000; // Only works with SQL Server
+});
+```
+
 ## Run tests
 
 ```shell
