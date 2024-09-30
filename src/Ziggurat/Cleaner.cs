@@ -22,6 +22,8 @@ public class CleanerOptions
     /// The batch size of delete command
     /// </summary>
     public int BatchSize { get; set; } = 100_000;
+
+    internal Action<IServiceCollection> RegisterStorage { get; set; }
 }
 
 public static class ZigguratExtensions
@@ -44,7 +46,10 @@ public static class ZigguratExtensions
     /// <returns></returns>
     public static IServiceCollection AddZigguratCleaner(this IServiceCollection services, Action<CleanerOptions> optionsAction)
     {
+        var options = new CleanerOptions();
+        optionsAction(options);
         services.Configure(optionsAction);
+        options.RegisterStorage?.Invoke(services);
         return services.AddHostedService<Cleaner>();
     }
 }

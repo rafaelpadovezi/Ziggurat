@@ -4,6 +4,7 @@ using Sample.Cap.Mongo;
 using System.Globalization;
 using Ziggurat;
 using Ziggurat.CapAdapter;
+using Ziggurat.MongoDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,11 @@ builder.Services
     })
     .AddSubscribeFilter<BootstrapFilter>(); // Enrich the message with the required information;
 
-builder.Services.AddZigguratCleaner();
+builder.Services.AddZigguratCleaner(options =>
+{
+    options.CleaningInterval = new TimeSpan(0, 5, 0);
+    options.UseMongoDbStorage();
+});
 
 var app = builder.Build();
 
