@@ -14,6 +14,7 @@ using System;
 using Ziggurat;
 using Ziggurat.CapAdapter;
 using Ziggurat.Logging;
+using Ziggurat.SqlServer;
 
 namespace Sample.Cap.SqlServer;
 
@@ -49,8 +50,9 @@ public class Startup
 
         services.AddZigguratCleaner(options =>
         {
-            options.CleaningInterval = new TimeSpan(1, 0, 0);
+            options.CleaningInterval = new TimeSpan(0, 5, 0);
             options.ExpireAfterInDays = 1;
+            options.UseEntityFrameworkStorage<ExampleDbContext>();
         });
         services
             .AddScoped<OrderCreatedConsumer>()

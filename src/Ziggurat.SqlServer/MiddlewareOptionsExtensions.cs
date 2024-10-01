@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ziggurat.Idempotency;
 using Ziggurat.SqlServer;
 
@@ -20,15 +21,15 @@ public static class MiddlewareOptionsExtensions
         where TContext : DbContext
         where TMessage : IMessage
     {
+        options.Extensions.Add(IdempotencySetupAction);
+
         static void IdempotencySetupAction(IServiceCollection services)
         {
             services
-                .AddScoped<IStorage, EntityFrameworkStorage<TContext>>()
+                .TryAddScoped<IStorage, EntityFrameworkStorage<TContext>>();
+            services
                 .AddScoped<IConsumerMiddleware<TMessage>, IdempotencyMiddleware<TMessage>>();
         }
-
-        options.Extensions.Add(IdempotencySetupAction);
-
     }
 
 }

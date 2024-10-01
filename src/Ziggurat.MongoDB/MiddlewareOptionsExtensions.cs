@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ziggurat.Idempotency;
 using Ziggurat.MongoDB;
 
@@ -20,13 +21,14 @@ public static class MiddlewareOptionsExtensions
     {
         ZigguratMongoDbOptions.MongoDatabaseName = mongoDatabaseName;
 
+        options.Extensions.Add(IdempotencySetupAction);
+
         static void IdempotencySetupAction(IServiceCollection services)
         {
             services
-                .AddScoped<IStorage, MongoDbStorage>()
+                .TryAddScoped<IStorage, MongoDbStorage>();
+            services
                 .AddScoped<IConsumerMiddleware<TMessage>, IdempotencyMiddleware<TMessage>>();
         }
-
-        options.Extensions.Add(IdempotencySetupAction);
     }
 }
