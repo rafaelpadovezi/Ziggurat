@@ -8,9 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
-        <PackageReference Include="DotNetCore.CAP.MongoDB" Version="8.2.0" />
-        <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.2.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
+        <PackageReference Include="DotNetCore.CAP.MongoDB" Version="8.3.2" />
+        <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.3.2" />
     </ItemGroup>
 
     <ItemGroup>
