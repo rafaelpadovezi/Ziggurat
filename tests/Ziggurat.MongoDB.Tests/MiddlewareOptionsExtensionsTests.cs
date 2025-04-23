@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Xunit;
@@ -29,10 +28,10 @@ public class MiddlewareOptionsExtensionsTests
         var storage = services
             .FirstOrDefault(x => x.ServiceType == typeof(IStorage) &&
                             x.ImplementationType == typeof(MongoDbStorage));
-        storage.Should().NotBeNull();
+        Assert.NotNull(storage);
         var idempotency = services
             .FirstOrDefault(x => x.ServiceType == typeof(IConsumerMiddleware<TestMessage>) &&
                             x.ImplementationType == typeof(IdempotencyMiddleware<TestMessage>));
-        idempotency.Should().NotBeNull();
+        Assert.NotNull(idempotency);
     }
 }

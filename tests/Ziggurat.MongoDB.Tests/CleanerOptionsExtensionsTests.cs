@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Xunit;
@@ -21,6 +20,7 @@ public class CleanerOptionsExtensionsTests
         var services = new ServiceCollection();
         options.RegisterStorage(services);
         var storage = services.FirstOrDefault(x => x.ServiceType == typeof(IStorage));
-        storage.ImplementationType.Should().Be(typeof(MongoDbStorage));
+        Assert.NotNull(storage);
+        Assert.Equal(typeof(MongoDbStorage), storage.ImplementationType);
     }
 }

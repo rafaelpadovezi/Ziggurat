@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using System;
+﻿using System;
 using Xunit;
 
 namespace Ziggurat.MongoDB.Tests;
@@ -15,12 +14,10 @@ public class ZigguratMongoDbOptionsTests
         // Arrange
         ZigguratMongoDbOptions.MongoDatabaseName = input;
 
-        // Act
-        Action action = () => _ = ZigguratMongoDbOptions.MongoDatabaseName;
-
-        // Assert
-        action.Should()
-            .Throw<InvalidOperationException>(
-                "MongoDB database name must be set. Be sure you are calling `UseMongoDbIdempotency`.");
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _ = ZigguratMongoDbOptions.MongoDatabaseName);
+        const string expectedMessage =
+            "MongoDB database name must be set. Be sure you are calling `UseMongoDbIdempotency`.";
+        Assert.Equal(expectedMessage, exception.Message);
     }
 }
