@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -30,12 +29,12 @@ public class PipelineTests
         await pipeline.ProcessMessageAsync(new TestMessage());
 
         // Assert - Verify call order
-        Order.Should().Equal(new List<string>
+        Assert.Equal(new()
         {
             "TestMiddleware1",
             "TestMiddleware2",
             "TestConsumerService"
-        });
+        }, Order);
     }
 
     public class TestMessage : IMessage

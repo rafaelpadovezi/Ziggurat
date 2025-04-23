@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Threading.Tasks;
@@ -106,7 +105,7 @@ public class IdempotentServiceTests
             await service.OnExecutingAsync(message, testMessage => mockService.Object.ProcessMessageAsync(testMessage));
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>();
+        await Assert.ThrowsAsync<InvalidOperationException>(action);
         mockLogger.VerifyLog(logger =>
                 logger.LogInformation("Message was processed already. Ignoring message1:group1."),
             Times.Never);
@@ -116,7 +115,7 @@ public class IdempotentServiceTests
         Mock<IStorage> mockStorage,
         Mock<ILogger<IdempotencyMiddleware<TestMessage>>> mockLogger = null)
     {
-        mockLogger ??= new Mock<ILogger<IdempotencyMiddleware<TestMessage>>>();
+        mockLogger ??= new();
 
         var service = new IdempotencyMiddleware<TestMessage>(
             mockStorage.Object,

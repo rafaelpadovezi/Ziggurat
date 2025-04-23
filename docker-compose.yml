@@ -52,7 +52,7 @@ services:
       - .:/app
     environment:
         - ConnectionStrings__SqlServer=Server=sqlserver;Database=TestDb;User=sa;Password=Password1;TrustServerCertificate=True
-        - ConnectionStrings__MongoDb=mongodb://mongo:27017
+        - ConnectionStrings__MongoDb=mongodb://mongo:27017?directConnection=true
     depends_on:
       sqlserver:
         condition: service_healthy

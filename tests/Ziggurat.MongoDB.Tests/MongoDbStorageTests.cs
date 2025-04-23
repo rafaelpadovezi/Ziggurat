@@ -1,8 +1,8 @@
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.MongoDB.Tests.Support;
@@ -15,7 +15,7 @@ public class MongoDbStorageTests : TestFixture
 
     public MongoDbStorageTests()
     {
-        _storage = new MongoDbStorage(MongoClient);
+        _storage = new(MongoClient);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class MongoDbStorageTests : TestFixture
         }
 
         // Assert
-        exception.Should().NotBeNull();
-        _storage.IsMessageExistsError(exception).Should().BeTrue();
+        Assert.NotNull(exception);
+        Assert.True(_storage.IsMessageExistsError(exception));
     }
 
     [Fact]
@@ -71,15 +71,15 @@ public class MongoDbStorageTests : TestFixture
         }
 
         // Act & Assert
-        exception.Should().NotBeNull();
-        _storage.IsMessageExistsError(exception).Should().BeFalse();
+        Assert.NotNull(exception);
+        Assert.False(_storage.IsMessageExistsError(exception));
     }
 
     [Fact]
     public void IsMessageExistsError_InvalidOperationException_ReturnFalse()
     {
         // Act & Assert
-        _storage.IsMessageExistsError(new InvalidOperationException()).Should().BeFalse();
+        Assert.False(_storage.IsMessageExistsError(new InvalidOperationException()));
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class MongoDbStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, "other-queue"));
 
         // Assert
-        result.Should().Be(false);
+        Assert.False(result);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class MongoDbStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage("other-id", testMessage.MessageGroup));
 
         // Assert
-        result.Should().Be(false);
+        Assert.False(result);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class MongoDbStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
 
         // Assert
-        result.Should().Be(true);
+        Assert.True(result);
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public class MongoDbStorageTests : TestFixture
         {
             using (var _ = MongoClient.StartIdempotentTransaction(testMessage))
             {
-                throw new Exception();
+                throw new();
             }
         }
         // ReSharper disable once EmptyGeneralCatchClause
@@ -148,7 +148,7 @@ public class MongoDbStorageTests : TestFixture
 
         // Assert
         var result = await _storage.HasProcessedAsync(new TestMessage(testMessage.MessageId, testMessage.MessageGroup));
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 
     [Fact]
@@ -176,12 +176,12 @@ public class MongoDbStorageTests : TestFixture
         var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 1000, default);
 
         // Assert
-        result.Should().Be(3);
+        Assert.Equal(3, result);
         var remainingMessages = await testCollection.Find(_ => true).ToListAsync();
-        remainingMessages.Should().SatisfyRespectively(
-            x => x.Id.Should().Be("1436814771495108604_test.queue"),
-            x => x.Id.Should().Be("1436814771495108605_test.queue"),
-            x => x.Id.Should().Be("1436814771495108606_test.queue"));
+        Assert.Collection(remainingMessages,
+            x => Assert.Equal("1436814771495108604_test.queue", x.Id),
+            x => Assert.Equal("1436814771495108605_test.queue", x.Id),
+            x => Assert.Equal("1436814771495108606_test.queue", x.Id));
         await testCollection.DeleteManyAsync(_ => true);
     }
 
@@ -202,11 +202,11 @@ public class MongoDbStorageTests : TestFixture
         var testCollection = MongoDatabase.GetCollection<MessageTracking>(ZigguratMongoDbOptions.ProcessedCollection);
 
         // Act
-        await _storage.InitializeAsync(default);
+        await _storage.InitializeAsync(CancellationToken.None);
 
         // Assert
         var indexes = await testCollection.Indexes.ListAsync();
         var indexNames = await indexes.ToListAsync();
-        indexNames.Should().ContainSingle(x => x["name"].AsString == nameof(MessageTracking.DateTime));
+        Assert.Contains(indexNames, x => x["name"].AsString == nameof(MessageTracking.DateTime));
     }
 }

@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Ziggurat.SqlServer.Tests.Support;
@@ -14,7 +14,7 @@ public class EntityFrameworkStorageTests : TestFixture
 
     public EntityFrameworkStorageTests()
     {
-        _storage = new EntityFrameworkStorage<TestDbContext>(Context);
+        _storage = new(Context);
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public class EntityFrameworkStorageTests : TestFixture
             ex = dbUpdateException;
         }
 
-        ex.Should().NotBeNull();
-        _storage.IsMessageExistsError(ex).Should().BeTrue();
+        Assert.NotNull(ex);
+        Assert.True(_storage.IsMessageExistsError(ex));
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class EntityFrameworkStorageTests : TestFixture
             ex = dbUpdateException;
         }
 
-        ex.Should().NotBeNull();
-        _storage.IsMessageExistsError(ex).Should().BeFalse();
+        Assert.NotNull(ex);
+        Assert.False(_storage.IsMessageExistsError(ex));
     }
 
     [Fact]
@@ -83,15 +83,15 @@ public class EntityFrameworkStorageTests : TestFixture
             ex = dbUpdateException;
         }
 
-        ex.Should().NotBeNull();
-        _storage.IsMessageExistsError(ex).Should().BeFalse();
+        Assert.NotNull(ex);
+        Assert.False(_storage.IsMessageExistsError(ex));
     }
 
     [Fact]
     public void IsMessageExistsError_InvalidOperationException_ShouldBeFalse()
     {
         // Act & Assert
-        _storage.IsMessageExistsError(new InvalidOperationException()).Should().BeFalse();
+        Assert.False(_storage.IsMessageExistsError(new InvalidOperationException()));
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage(tracking.Id, tracking.Type));
 
         // Arrange
-        result.Should().Be(true);
+        Assert.True(result);
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage(tracking.Id, "other-queue"));
 
         // Arrange
-        result.Should().Be(false);
+        Assert.False(result);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage("new-message-id", tracking.Type));
 
         // Arrange
-        result.Should().Be(false);
+        Assert.False(result);
     }
 
     [Fact]
@@ -149,13 +149,13 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.HasProcessedAsync(new TestMessage("1436814771495108608", "test.queue"));
 
         // Arrange
-        result.Should().Be(false);
-        Context.ChangeTracker.Entries().Single().Entity.Should()
-            .BeEquivalentTo(new
-            {
-                Id = "1436814771495108608",
-                Type = "test.queue"
-            });
+        Assert.False(result);
+        var entity = Context.ChangeTracker.Entries().Single().Entity;
+        Assert.Equivalent(new
+        {
+            Id = "1436814771495108608",
+            Type = "test.queue"
+        }, entity);
     }
 
     [Fact]
@@ -168,8 +168,10 @@ public class EntityFrameworkStorageTests : TestFixture
         Action act = () => _ = new EntityFrameworkStorage<TestContextWithoutMessages>(context);
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage(
-            "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.");
+        const string expectedMessage =
+            "Cannot create IdempotencyService because a DbSet for 'MessageTracking' is not included in the model for the context.";
+        var exceptionMessage = Assert.Throws<InvalidOperationException>(act);
+        Assert.Equal(expectedMessage, exceptionMessage.Message);
     }
 
     [Fact]
@@ -192,13 +194,14 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 100, default);
 
         // Assert
-        result.Should().Be(3);
-        Context.Messages.Count().Should().Be(3);
+        Assert.Equal(3, result);
+        Assert.Equal(3, Context.Messages.Count());
         var dbMessages = await Context.Messages.ToListAsync();
-        dbMessages.Should().SatisfyRespectively(
-            x => x.Id.Should().Be("1436814771495108601"),
-            x => x.Id.Should().Be("1436814771495108602"),
-            x => x.Id.Should().Be("1436814771495108603"));
+        Assert.Collection(dbMessages,
+            x => Assert.Equal("1436814771495108601", x.Id),
+            x => Assert.Equal("1436814771495108602", x.Id),
+            x => Assert.Equal("1436814771495108603", x.Id));
+
     }
 
     [Fact]
@@ -222,8 +225,9 @@ public class EntityFrameworkStorageTests : TestFixture
         var result = await _storage.DeleteMessagesHistoryOlderThanAsync(30, 3, default);
 
         // Assert
-        result.Should().Be(3);
-        Context.Messages.Count().Should().Be(3);
+        // Assert
+        Assert.Equal(3, result);
+        Assert.Equal(3, Context.Messages.Count());
     }
 
     [Fact]
@@ -255,13 +259,12 @@ public class EntityFrameworkStorageTests : TestFixture
         // Act
 
         var results = await Task.WhenAll(
-            storage1.DeleteMessagesHistoryOlderThanAsync(30, 3, default),
-            storage2.DeleteMessagesHistoryOlderThanAsync(30, 3, default)
+            storage1.DeleteMessagesHistoryOlderThanAsync(30, 3, CancellationToken.None),
+            storage2.DeleteMessagesHistoryOlderThanAsync(30, 3, CancellationToken.None)
         );
 
         // Assert
-        results.Should().BeEquivalentTo(new[] { 3, 3 });
-        var dbCount = await dbContext.Messages.AsNoTracking().CountAsync();
-        dbCount.Should().Be(0);
+        Assert.Equal(new[] { 3, 3 }, results);
+        Assert.Equal(0, await dbContext.Messages.AsNoTracking().CountAsync());
     }
 }

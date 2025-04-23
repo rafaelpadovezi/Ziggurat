@@ -9,3 +9,11 @@ updates:
     target-branch: "main"
     reviewers:
       - "rafaelpadovezi"
+  # ignore npm packages from sample
+  - package-ecosystem: "nuget"
+    directory: "/samples/"
+    schedule:
+      interval: "monthly"
+    labels: [ ]
+    ignore:
+      - dependency-name: "*"
